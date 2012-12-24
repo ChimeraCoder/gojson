@@ -33,7 +33,7 @@ func generateTypes(obj map[string]interface{}, layers int) string {
                 //TODO Run type inference on array to see if it is an array of a single type
                 structure += "\n" + indentation + key + " []interface{}"
             } else {
-                structure += "\n" + indentation + key + " " + curType.Name() 
+                structure += "\n" + indentation + key + " " + curType.Name()
             }
         }
     }
@@ -43,10 +43,9 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 
 //Given a JSON string representation of an object and a name structName,
 //generate the struct definition of the struct, and give it the specified name
-func generate(jsn string, structName string) string{
-    bts := []byte(jsn)
+func generate(jsn []byte, structName string) string{
     result := map[string]interface{}{}
-    json.Unmarshal(bts, &result)
+    json.Unmarshal(jsn, &result)
 
     typeString := generateTypes(result, 0)
 
@@ -67,5 +66,5 @@ func main(){
 
     js, _  := ioutil.ReadFile(*filename)
 
-    fmt.Printf("package main\n%v\n", generate(string(js), "TestStruct"))
+    fmt.Printf("package main\n%v\n", generate(js, "TestStruct"))
 }
