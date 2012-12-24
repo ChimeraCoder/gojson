@@ -54,7 +54,7 @@ func generate(jsn string, structName string) string{
 }
 
 
-var filename *string =  flag.String("file", os.Args[0], "the name of the file that contains the json")
+var filename *string =  flag.String("file", os.Args[1], "the name of the file that contains the json")
 
 func main(){
     flag.Parse()
