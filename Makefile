@@ -1,5 +1,5 @@
 compile:
-	go build json.go
+	go build gojson.go
 
 clean:
 	rm json
