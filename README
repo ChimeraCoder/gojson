@@ -10,7 +10,7 @@ Example
 Given a file json_example.json which contains some sample JSON data, gojson will generate a valid Go struct definition and infer the appropriate types.
 
 ````
-> ./gojson -file json_example.json | gofmt 
+> ./gojson -file json_example.json 
 package main
 
 type TestStruct struct {
@@ -41,11 +41,12 @@ type TestStruct struct {
 Or, more succintly:
 
 ````
-> ./gojson -file json_example.json | gofmt > example_struct.go
+> ./gojson -file json_example.json > example_struct.go
 ````
 
 Any error messages will be printed to STDERR, so if the above command produced no output, you now have a valid Go source file named example_struct.go which contains the desired struct definition. 
 
+The output will already be properly formatted according to `go fmt`.
 
 Installation
 ----------
