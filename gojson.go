@@ -63,12 +63,20 @@ func generate(jsn []byte, structName string) (err error) {
 	return
 }
 
-var input_file *string = flag.String("file", os.Args[1], "the name of the file that contains the json")
+var input_file *string = flag.String("file", "", "the name of the file that contains the json")
 
 func main() {
 	flag.Parse()
+
+
 	if *input_file == "" {
-		panic(fmt.Errorf("No input file specified"))
+        //If '-file' was not provided, use the first command-line argument, if one exists
+        //If no command-line arguments were provided, panic
+        if len(os.Args) > 0{
+            *input_file = os.Args[1]
+        } else{
+            panic(fmt.Errorf("No input file specified"))
+        }
 	}
 
 	//Demontrate example
