@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+    "bytes"
 	"fmt"
 	"go/parser"
 	"go/printer"
@@ -46,7 +47,7 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 
 //Given a JSON string representation of an object and a name structName,
 //generate the struct definition of the struct, and give it the specified name
-func generate(jsn []byte, structName string) (err error) {
+func generate(jsn []byte, structName string) (js_s string, err error) {
 	result := map[string]interface{}{}
 	json.Unmarshal(jsn, &result)
 
@@ -58,10 +59,12 @@ func generate(jsn []byte, structName string) (err error) {
 
 	formatted, err := parser.ParseFile(fset, "", typeString, parser.ParseComments)
 	if err != nil {
-		return err
+		return
 	}
 
-	printer.Fprint(os.Stdout, fset, formatted)
+    var buf bytes.Buffer
+	printer.Fprint(&buf, fset, formatted)
+    js_s = buf.String()
 	return
 }
 
@@ -86,7 +89,10 @@ func main() {
 
 	js, _ := ioutil.ReadFile(*input_file)
 
-	if err := generate(js, "TestStruct"); err != nil {
+	if js, err := generate(js, "TestStruct"); err != nil {
 		panic(err)
-	}
+	} else{
+        fmt.Fprint(os.Stdout, js)
+    }
+
 }
