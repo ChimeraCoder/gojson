@@ -9,7 +9,7 @@ import (
 //It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
 	js := []byte(`{"foo" : "bar"}`)
-	if err := generate(js, "TestStruct"); err != nil {
+	if _, err := generate(js, "TestStruct"); err != nil {
 		panic(err)
 	}
 }
@@ -17,7 +17,7 @@ func TestSimpleJson(t *testing.T) {
 //TestNullableJson tests that a null JSON value is handled properly
 func TestNullableJson(t *testing.T) {
 	js := []byte(`{"foo" : "bar", "baz" : null}`)
-	if err := generate(js, "TestStruct"); err != nil {
+	if _, err := generate(js, "TestStruct"); err != nil {
 		panic(err)
 	}
 }
