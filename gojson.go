@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
-    "bytes"
 	"fmt"
 	"go/parser"
 	"go/printer"
@@ -35,11 +35,11 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 				//Currently defaults to interface{} because JSON allows for heterogeneous arrays
 				//TODO Run type inference on array to see if it is an array of a single type
 				structure += "\n" + indentation + key + " []interface{}"
-			} else if curType == nil{
+			} else if curType == nil {
 				structure += "\n" + indentation + key + " " + "*interface{}"
 			} else {
 				structure += "\n" + indentation + key + " " + curType.Name()
-            }
+			}
 		}
 	}
 	return structure
@@ -62,26 +62,30 @@ func generate(jsn []byte, structName string) (js_s string, err error) {
 		return
 	}
 
-    var buf bytes.Buffer
+	var buf bytes.Buffer
 	printer.Fprint(&buf, fset, formatted)
-    js_s = buf.String()
+	js_s = buf.String()
 	return
 }
 
 var input_file *string = flag.String("file", "", "the name of the file that contains the json")
+var struct_name *string = flag.String("struct", "", "the desired name of the struct")
 
 func main() {
 	flag.Parse()
 
-
 	if *input_file == "" {
-        //If '-file' was not provided, use the first command-line argument, if one exists
-        //If no command-line arguments were provided, panic
-        if len(os.Args) > 0{
-            *input_file = os.Args[1]
-        } else{
-            panic(fmt.Errorf("No input file specified"))
-        }
+		//If '-file' was not provided, use the first command-line argument, if one exists
+		//If no command-line arguments were provided, panic
+		if len(os.Args) > 0 {
+			*input_file = os.Args[1]
+		} else {
+			panic(fmt.Errorf("No input file specified"))
+		}
+	}
+
+	if *struct_name == "" {
+		*struct_name = "TestStruct"
 	}
 
 	//Demontrate example
@@ -89,10 +93,10 @@ func main() {
 
 	js, _ := ioutil.ReadFile(*input_file)
 
-	if js, err := generate(js, "TestStruct"); err != nil {
+	if js, err := generate(js, *struct_name); err != nil {
 		panic(err)
-	} else{
-        fmt.Fprint(os.Stdout, js)
-    }
+	} else {
+		fmt.Fprint(os.Stdout, js)
+	}
 
 }
