@@ -8,95 +8,138 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
+	"sort"
+	"strings"
 )
 
-func generateTypes(obj map[string]interface{}, layers int) string {
+var input_file = flag.String("file", "", "the name of the file that contains the json")
+var struct_name = flag.String("struct", "JsonStruct", "the desired name of the struct")
+var export_fields = flag.Bool("export_fields", true, "should field names be automatically capitalized?")
+
+//Generate go struct entries for a map[string]interface{} structure
+func generateTypes(obj map[string]interface{}, depth int) string {
 	structure := "struct {"
 
+	keys := make([]string, 0, len(obj))
 	for key, _ := range obj {
-		curType := reflect.TypeOf(obj[key])
-		indentation := "\t"
-		for i := 0; i < layers; {
-			indentation += "\t"
-			i++
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		value := obj[key]
+		valueType := typeForValue(value)
+
+		//If a nested value, recurse
+		if value, nested := value.(map[string]interface{}); nested {
+			valueType = generateTypes(value, depth+1) + "}"
 		}
 
-		nested, isNested := obj[key].(map[string]interface{})
-		if isNested {
-			//This is a nested object
-			structure += "\n" + indentation + key + " " + generateTypes(nested, layers+1) + "}"
-		} else {
-			//Check if this is an array
-			_, isArray := obj[key].([]interface{})
-			if isArray {
-				//Currently defaults to interface{} because JSON allows for heterogeneous arrays
-				//TODO Run type inference on array to see if it is an array of a single type
-				structure += "\n" + indentation + key + " []interface{}"
-			} else if curType == nil {
-				structure += "\n" + indentation + key + " " + "*interface{}"
-			} else {
-				structure += "\n" + indentation + key + " " + curType.Name()
-			}
+		//Capitalize key if flag is true
+		if *export_fields {
+			key = strings.Title(key)
 		}
+
+		indentation := ""
+		for i := 0; i < depth+1; i++ {
+			indentation += "\t"
+		}
+		structure += fmt.Sprintf("\n%s%s %s", indentation, key, valueType)
 	}
 	return structure
 }
 
+// generate an appropriate struct type entry
+func typeForValue(value interface{}) string {
+	//Check if this is an array
+
+	if objects, ok := value.([]interface{}); ok {
+		types := make(map[reflect.Type]bool, 0)
+		for _, o := range objects {
+			types[reflect.TypeOf(o)] = true
+		}
+		if len(types) == 1 {
+			return "[]" + reflect.TypeOf(objects[0]).Name()
+		} else {
+			return "[]interface{}"
+		}
+	} else if reflect.TypeOf(value) == nil {
+		return "*interface{}"
+	}
+	return reflect.TypeOf(value).Name()
+}
+
 //Given a JSON string representation of an object and a name structName,
 //generate the struct definition of the struct, and give it the specified name
-func generate(jsn []byte, structName string) (js_s string, err error) {
+func generate(input io.Reader, structName string) (js_s string, err error) {
 	result := map[string]interface{}{}
-	json.Unmarshal(jsn, &result)
+	if err = json.NewDecoder(input).Decode(&result); err != nil {
+		return
+	}
 
 	typeString := generateTypes(result, 0)
-
 	typeString = "package main \n type " + structName + " " + typeString + "}"
+	return fmtGo(typeString)
+}
 
-	fset := token.NewFileSet() // positions are relative to fset
+//Pretty print a piece of go code
+func fmtGo(input string) (string, error) {
+	fset := token.NewFileSet()
 
-	formatted, err := parser.ParseFile(fset, "", typeString, parser.ParseComments)
+	formatted, err := parser.ParseFile(fset, "", input, parser.ParseComments)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	var buf bytes.Buffer
 	printer.Fprint(&buf, fset, formatted)
-	js_s = buf.String()
-	return
+	return buf.String(), nil
 }
 
-var input_file *string = flag.String("file", "", "the name of the file that contains the json")
-var struct_name *string = flag.String("struct", "", "the desired name of the struct")
+//Return true if the provided file appears to be a character device
+func isInteractive(file *os.File) bool {
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return false
+	}
+	return fileInfo.Mode()&(os.ModeCharDevice|os.ModeCharDevice) != 0
+}
 
 func main() {
 	flag.Parse()
 
+	//If '-file' was not provided, use the first command-line argument (if one exists)
+	if *input_file == "" && len(flag.Args()) > 0 {
+		*input_file = flag.Args()[0]
+	}
+
+	var input io.Reader
+
 	if *input_file == "" {
-		//If '-file' was not provided, use the first command-line argument, if one exists
-		//If no command-line arguments were provided, panic
-		if len(os.Args) > 0 {
-			*input_file = os.Args[1]
+		if isInteractive(os.Stdin) {
+			flag.Usage()
+			fmt.Fprintln(os.Stderr, "No input file specified")
+			os.Exit(1)
 		} else {
-			panic(fmt.Errorf("No input file specified"))
+			// non-interactive, consume stdin
+			input = os.Stdin
+		}
+	} else {
+		var err error
+		input, err = os.Open(*input_file)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error reading", *input_file)
+			os.Exit(1)
 		}
 	}
 
-	if *struct_name == "" {
-		*struct_name = "TestStruct"
-	}
-
-	//Demontrate example
-	//using http://json.org/example.html
-
-	js, _ := ioutil.ReadFile(*input_file)
-
-	if js, err := generate(js, *struct_name); err != nil {
-		panic(err)
+	if output, err := generate(input, *struct_name); err != nil {
+		fmt.Fprintln(os.Stderr, "error parsing json", err)
+		os.Exit(1)
 	} else {
-		fmt.Fprint(os.Stdout, js)
+		fmt.Print(output)
 	}
-
 }
