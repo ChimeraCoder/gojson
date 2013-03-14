@@ -1,61 +1,51 @@
 gojson
 ===========
 
-gojson is a simple command-line tool for manipulating JSON for use in developing Go code.
+gojson is a simple command-line tool for generating go structs for existing JSON documents.
 
 
 Example
 ----------
 
-Given a file json_example.json which contains some sample JSON data, gojson will generate a valid Go struct definition and infer the appropriate types.
+Given a file json_example.json (or stdin) which contains some sample JSON data, gojson will generate a valid Go struct definition and infer the appropriate types.
 
-````
-> ./gojson -file json_example.json 
+```shell
+$ curl -s https://raw.github.com/ChimeraCoder/gojson/master/json_example.json | gojson
 package main
 
-type TestStruct struct {
-        glossary struct {
-                GlossDiv struct {
-                        GlossList struct {
-                                GlossEntry struct {
-                                        ID        string
-                                        Acronym   string
-                                        GlossTerm string
-                                        GlossDef  struct {
-                                                GlossSeeAlso []interface{}
-                                                para         string
-                                        }
-                                        SortAs   string
-                                        Abbrev   string
-                                        GlossSee string
-                                }
-                        }
-                        title string
-                }
-                title string
-        }
-        _comment string
+type JsonStruct struct {
+	_comment	string
+	Glossary	struct {
+		GlossDiv	struct {
+			GlossList	struct {
+				GlossEntry struct {
+					Abbrev		string
+					Acronym		string
+					GlossDef	struct {
+						GlossSeeAlso	[]string
+						Para		string
+					}
+					GlossSee	string
+					GlossTerm	string
+					ID		string
+					SortAs		string
+				}
+			}
+			Title	string
+		}
+		Title	string
+	}
 }
-````
-
-Or, more succintly:
-
-````
-> ./gojson -file json_example.json > example_struct.go
-````
-
-Any error messages will be printed to STDERR, so if the above command produced no output, you now have a valid Go source file named example_struct.go which contains the desired struct definition. 
-
-The output will already be properly formatted according to `go fmt`.
+```
 
 Installation
 ----------
 
 Assuming you have a go environment set up:
 
-````
+```
 go get github.com/chimeracoder/gojson
-````
+```
 
 gojson should now be on your path (in $GOPATH/bin)
 
