@@ -35,10 +35,10 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 			i++
 		}
 
-		nested, isNested := obj[key].(map[string]interface{})
-		if isNested {
+		var typeForKey string
+		if nested, isNested := obj[key].(map[string]interface{}); isNested {
 			//This is a nested object
-			structure += "\n" + indentation + key + " " + generateTypes(nested, layers+1) + "}"
+			typeForKey = generateTypes(nested, layers+1) + "}"
 		} else {
 			//Check if this is an array
 			if objects, ok := obj[key].([]interface{}); ok {
@@ -48,16 +48,17 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 				}
 
 				if len(types) == 1 {
-					structure += "\n" + indentation + key + " []" + reflect.TypeOf(objects[0]).Name()
+					typeForKey = "[]" + reflect.TypeOf(objects[0]).Name()
 				} else {
-					structure += "\n" + indentation + key + " []interface{}"
+					typeForKey = "[]interface{}"
 				}
 			} else if curType == nil {
-				structure += "\n" + indentation + key + " " + "*interface{}"
+				typeForKey = "*interface{}"
 			} else {
-				structure += "\n" + indentation + key + " " + curType.Name()
+				typeForKey = curType.Name()
 			}
 		}
+		structure += fmt.Sprintf("\n%s%s %s", indentation, key, typeForKey)
 	}
 	return structure
 }
