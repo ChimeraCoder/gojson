@@ -49,7 +49,9 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 //generate the struct definition of the struct, and give it the specified name
 func generate(jsn []byte, structName string) (js_s string, err error) {
 	result := map[string]interface{}{}
-	json.Unmarshal(jsn, &result)
+	if err = json.Unmarshal(jsn, &result); err != nil {
+		return
+	}
 
 	typeString := generateTypes(result, 0)
 
@@ -69,7 +71,7 @@ func generate(jsn []byte, structName string) (js_s string, err error) {
 }
 
 var input_file *string = flag.String("file", "", "the name of the file that contains the json")
-var struct_name *string = flag.String("struct", "", "the desired name of the struct")
+var struct_name *string = flag.String("struct", "JsonStruct", "the desired name of the struct")
 
 func main() {
 	flag.Parse()
@@ -86,19 +88,16 @@ func main() {
 		}
 	}
 
-	if *struct_name == "" {
-		*struct_name = "TestStruct"
+	js, err := ioutil.ReadFile(*input_file)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error reading", *input_file)
+		os.Exit(1)
 	}
 
-	//Demontrate example
-	//using http://json.org/example.html
-
-	js, _ := ioutil.ReadFile(*input_file)
-
-	if js, err := generate(js, *struct_name); err != nil {
-		panic(err)
+	if output, err := generate(js, *struct_name); err != nil {
+		fmt.Fprintln(os.Stderr, "error parsing json", err)
+		os.Exit(1)
 	} else {
-		fmt.Fprint(os.Stdout, js)
+		fmt.Print(output)
 	}
-
 }
