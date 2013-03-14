@@ -77,10 +77,12 @@ func main() {
 	if *input_file == "" {
 		//If '-file' was not provided, use the first command-line argument, if one exists
 		//If no command-line arguments were provided, panic
-		if len(os.Args) > 0 {
+		if len(os.Args) > 1 {
 			*input_file = os.Args[1]
 		} else {
-			panic(fmt.Errorf("No input file specified"))
+			flag.Usage()
+			fmt.Fprintln(os.Stderr, "No input file specified")
+			os.Exit(1)
 		}
 	}
 

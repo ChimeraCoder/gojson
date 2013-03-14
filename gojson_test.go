@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-
 //TestSimpleJson tests that a simple JSON string with a single key and a single (string) value returns no error
 //It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
