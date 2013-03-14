@@ -19,7 +19,8 @@ var input_file = flag.String("file", "", "the name of the file that contains the
 var struct_name = flag.String("struct", "JsonStruct", "the desired name of the struct")
 var export_fields = flag.Bool("export_fields", true, "should field names be automatically capitalized?")
 
-func generateTypes(obj map[string]interface{}, layers int) string {
+//Generate go struct entries for a map[string]interface{} structure
+func generateTypes(obj map[string]interface{}, depth int) string {
 	structure := "struct {"
 
 	keys := make([]string, 0, len(obj))
@@ -31,7 +32,7 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 	for _, key := range keys {
 		curType := reflect.TypeOf(obj[key])
 		indentation := "\t"
-		for i := 0; i < layers; {
+		for i := 0; i < depth; {
 			indentation += "\t"
 			i++
 		}
@@ -39,7 +40,7 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 		var typeForKey string
 		if nested, isNested := obj[key].(map[string]interface{}); isNested {
 			//This is a nested object
-			typeForKey = generateTypes(nested, layers+1) + "}"
+			typeForKey = generateTypes(nested, depth+1) + "}"
 		} else {
 			//Check if this is an array
 			if objects, ok := obj[key].([]interface{}); ok {
@@ -80,7 +81,7 @@ func generate(input io.Reader, structName string) (js_s string, err error) {
 	return fmtGo(typeString)
 }
 
-// pretty prints a piece of go code
+//Pretty print a piece of go code
 func fmtGo(input string) (string, error) {
 	fset := token.NewFileSet()
 
@@ -94,7 +95,7 @@ func fmtGo(input string) (string, error) {
 	return buf.String(), nil
 }
 
-// Returns true if the provided file appears to be a character device
+//Return true if the provided file appears to be a character device
 func isInteractive(file *os.File) bool {
 	fileInfo, err := file.Stat()
 	if err != nil {
