@@ -93,6 +93,14 @@ func fmtGo(input string) (string, error) {
 	printer.Fprint(&buf, fset, formatted)
 	return buf.String(), nil
 }
+
+// Returns true if the provided file appears to be a character device
+func isInteractive(file *os.File) bool {
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return false
+	}
+	return fileInfo.Mode()&(os.ModeCharDevice|os.ModeCharDevice) != 0
 }
 
 func main() {
@@ -106,9 +114,14 @@ func main() {
 	var input io.Reader
 
 	if *input_file == "" {
-		flag.Usage()
-		fmt.Fprintln(os.Stderr, "No input file specified")
-		os.Exit(1)
+		if isInteractive(os.Stdin) {
+			flag.Usage()
+			fmt.Fprintln(os.Stderr, "No input file specified")
+			os.Exit(1)
+		} else {
+			// non-interactive, consume stdin
+			input = os.Stdin
+		}
 	} else {
 		var err error
 		input, err = os.Open(*input_file)
