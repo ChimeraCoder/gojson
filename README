@@ -51,23 +51,13 @@ The output will already be properly formatted according to `go fmt`.
 Installation
 ----------
 
-You probably don't want to have to clone the git repository to your current directory or use an absolute path to the binary each time you want to create a new struct. Installation is easy:
+Assuming you have a go environment set up:
 
 ````
-# make install
+go get github.com/chimeracoder/gojson
 ````
 
-Now, you can access gojson from any directory.
-
-By default, this will install to /usr/local/bin, which will probably require root permissions. If INSTALL_PATH is defined as a (non-empty) environment variable, the binary will be installed to that location instead. For example, a non-system-wide installation
-
-````
-> export INSTALL_PATH=~/bin
-> make install                      #no root permission needed
-````
-
-(Make sure that the directory specified in INSTALL_PATH is in your $PATH)
-
+gojson should now be on your path (in $GOPATH/bin)
 
 License 
 ----------
