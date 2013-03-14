@@ -11,12 +11,19 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"sort"
 )
 
 func generateTypes(obj map[string]interface{}, layers int) string {
 	structure := "struct {"
 
+	keys := make([]string, 0, len(obj))
 	for key, _ := range obj {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
 		curType := reflect.TypeOf(obj[key])
 		indentation := "\t"
 		for i := 0; i < layers; {
