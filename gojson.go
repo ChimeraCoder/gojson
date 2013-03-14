@@ -8,7 +8,7 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
 	"sort"
@@ -69,9 +69,9 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 
 //Given a JSON string representation of an object and a name structName,
 //generate the struct definition of the struct, and give it the specified name
-func generate(jsn []byte, structName string) (js_s string, err error) {
+func generate(input io.Reader, structName string) (js_s string, err error) {
 	result := map[string]interface{}{}
-	if err = json.Unmarshal(jsn, &result); err != nil {
+	if err = json.NewDecoder(input).Decode(&result); err != nil {
 		return
 	}
 
@@ -98,25 +98,27 @@ func fmtGo(input string) (string, error) {
 func main() {
 	flag.Parse()
 
+	//If '-file' was not provided, use the first command-line argument (if one exists)
+	if *input_file == "" && len(flag.Args()) > 0 {
+		*input_file = flag.Args()[0]
+	}
+
+	var input io.Reader
+
 	if *input_file == "" {
-		//If '-file' was not provided, use the first command-line argument, if one exists
-		//If no command-line arguments were provided, panic
-		if len(os.Args) > 1 {
-			*input_file = os.Args[1]
-		} else {
-			flag.Usage()
-			fmt.Fprintln(os.Stderr, "No input file specified")
+		flag.Usage()
+		fmt.Fprintln(os.Stderr, "No input file specified")
+		os.Exit(1)
+	} else {
+		var err error
+		input, err = os.Open(*input_file)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error reading", *input_file)
 			os.Exit(1)
 		}
 	}
 
-	js, err := ioutil.ReadFile(*input_file)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error reading", *input_file)
-		os.Exit(1)
-	}
-
-	if output, err := generate(js, *struct_name); err != nil {
+	if output, err := generate(input, *struct_name); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing json", err)
 		os.Exit(1)
 	} else {
