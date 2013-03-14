@@ -76,20 +76,23 @@ func generate(jsn []byte, structName string) (js_s string, err error) {
 	}
 
 	typeString := generateTypes(result, 0)
-
 	typeString = "package main \n type " + structName + " " + typeString + "}"
+	return fmtGo(typeString)
+}
 
-	fset := token.NewFileSet() // positions are relative to fset
+// pretty prints a piece of go code
+func fmtGo(input string) (string, error) {
+	fset := token.NewFileSet()
 
-	formatted, err := parser.ParseFile(fset, "", typeString, parser.ParseComments)
+	formatted, err := parser.ParseFile(fset, "", input, parser.ParseComments)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	var buf bytes.Buffer
 	printer.Fprint(&buf, fset, formatted)
-	js_s = buf.String()
-	return
+	return buf.String(), nil
+}
 }
 
 func main() {
