@@ -9,7 +9,7 @@ Example
 
 Given a file json_example.json (or stdin) which contains some sample JSON data, gojson will generate a valid Go struct definition and infer the appropriate types.
 
-```shell
+```sh
 $ curl -s https://raw.github.com/ChimeraCoder/gojson/master/json_example.json | gojson
 package main
 
@@ -43,11 +43,11 @@ Installation
 
 Assuming you have a go environment set up:
 
-```
-go get github.com/ChimeraCoder/gojson
+```sh
+$ go get github.com/ChimeraCoder/gojson
 ```
 
-gojson should now be on your path (in $GOPATH/bin)
+gojson should now be on your path (in $GOPATH/bin or $GOROOT/bin)
 
 License 
 ----------
