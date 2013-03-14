@@ -14,6 +14,10 @@ import (
 	"sort"
 )
 
+var input_file = flag.String("file", "", "the name of the file that contains the json")
+var struct_name = flag.String("struct", "JsonStruct", "the desired name of the struct")
+
+
 func generateTypes(obj map[string]interface{}, layers int) string {
 	structure := "struct {"
 
@@ -82,9 +86,6 @@ func generate(jsn []byte, structName string) (js_s string, err error) {
 	js_s = buf.String()
 	return
 }
-
-var input_file *string = flag.String("file", "", "the name of the file that contains the json")
-var struct_name *string = flag.String("struct", "JsonStruct", "the desired name of the struct")
 
 func main() {
 	flag.Parse()
