@@ -37,11 +37,17 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 			structure += "\n" + indentation + key + " " + generateTypes(nested, layers+1) + "}"
 		} else {
 			//Check if this is an array
-			_, isArray := obj[key].([]interface{})
-			if isArray {
-				//Currently defaults to interface{} because JSON allows for heterogeneous arrays
-				//TODO Run type inference on array to see if it is an array of a single type
-				structure += "\n" + indentation + key + " []interface{}"
+			if objects, ok := obj[key].([]interface{}); ok {
+				types := make(map[reflect.Type]bool, 0)
+				for _, o := range objects {
+					types[reflect.TypeOf(o)] = true
+				}
+
+				if len(types) == 1 {
+					structure += "\n" + indentation + key + " []" + reflect.TypeOf(objects[0]).Name()
+				} else {
+					structure += "\n" + indentation + key + " []interface{}"
+				}
 			} else if curType == nil {
 				structure += "\n" + indentation + key + " " + "*interface{}"
 			} else {

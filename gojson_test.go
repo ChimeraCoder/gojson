@@ -38,7 +38,7 @@ type TestStruct struct {
 					Abbrev		string
 					Acronym		string
 					GlossDef	struct {
-						GlossSeeAlso	[]interface{}
+						GlossSeeAlso	[]string
 						para		string
 					}
 					GlossSee	string
