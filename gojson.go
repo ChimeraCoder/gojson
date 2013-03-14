@@ -30,42 +30,46 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		curType := reflect.TypeOf(obj[key])
-		indentation := "\t"
-		for i := 0; i < depth; {
-			indentation += "\t"
-			i++
+		value := obj[key]
+		valueType := typeForValue(value)
+
+		//If a nested value, recurse
+		if value, nested := value.(map[string]interface{}); nested {
+			valueType = generateTypes(value, depth+1) + "}"
 		}
 
-		var typeForKey string
-		if nested, isNested := obj[key].(map[string]interface{}); isNested {
-			//This is a nested object
-			typeForKey = generateTypes(nested, depth+1) + "}"
-		} else {
-			//Check if this is an array
-			if objects, ok := obj[key].([]interface{}); ok {
-				types := make(map[reflect.Type]bool, 0)
-				for _, o := range objects {
-					types[reflect.TypeOf(o)] = true
-				}
-
-				if len(types) == 1 {
-					typeForKey = "[]" + reflect.TypeOf(objects[0]).Name()
-				} else {
-					typeForKey = "[]interface{}"
-				}
-			} else if curType == nil {
-				typeForKey = "*interface{}"
-			} else {
-				typeForKey = curType.Name()
-			}
-		}
+		//Capitalize key if flag is true
 		if *export_fields {
 			key = strings.Title(key)
 		}
-		structure += fmt.Sprintf("\n%s%s %s", indentation, key, typeForKey)
+
+		indentation := ""
+		for i := 0; i < depth+1; i++ {
+			indentation += "\t"
+		}
+		structure += fmt.Sprintf("\n%s%s %s", indentation, key, valueType)
 	}
 	return structure
+}
+
+// generate an appropriate struct type entry
+func typeForValue(value interface{}) string {
+	//Check if this is an array
+
+	if objects, ok := value.([]interface{}); ok {
+		types := make(map[reflect.Type]bool, 0)
+		for _, o := range objects {
+			types[reflect.TypeOf(o)] = true
+		}
+		if len(types) == 1 {
+			return "[]" + reflect.TypeOf(objects[0]).Name()
+		} else {
+			return "[]interface{}"
+		}
+	} else if reflect.TypeOf(value) == nil {
+		return "*interface{}"
+	}
+	return reflect.TypeOf(value).Name()
 }
 
 //Given a JSON string representation of an object and a name structName,
