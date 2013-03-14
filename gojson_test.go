@@ -31,7 +31,7 @@ func TestExample(t *testing.T) {
 
 type TestStruct struct {
 	_comment	string
-	glossary	struct {
+	Glossary	struct {
 		GlossDiv	struct {
 			GlossList	struct {
 				GlossEntry struct {
@@ -39,7 +39,7 @@ type TestStruct struct {
 					Acronym		string
 					GlossDef	struct {
 						GlossSeeAlso	[]string
-						para		string
+						Para		string
 					}
 					GlossSee	string
 					GlossTerm	string
@@ -47,9 +47,9 @@ type TestStruct struct {
 					SortAs		string
 				}
 			}
-			title	string
+			Title	string
 		}
-		title	string
+		Title	string
 	}
 }
 `

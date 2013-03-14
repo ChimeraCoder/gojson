@@ -12,11 +12,12 @@ import (
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 )
 
 var input_file = flag.String("file", "", "the name of the file that contains the json")
 var struct_name = flag.String("struct", "JsonStruct", "the desired name of the struct")
-
+var export_fields = flag.Bool("export_fields", true, "should field names be automatically capitalized?")
 
 func generateTypes(obj map[string]interface{}, layers int) string {
 	structure := "struct {"
@@ -57,6 +58,9 @@ func generateTypes(obj map[string]interface{}, layers int) string {
 			} else {
 				typeForKey = curType.Name()
 			}
+		}
+		if *export_fields {
+			key = strings.Title(key)
 		}
 		structure += fmt.Sprintf("\n%s%s %s", indentation, key, typeForKey)
 	}
