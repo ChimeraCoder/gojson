@@ -44,7 +44,7 @@ Installation
 Assuming you have a go environment set up:
 
 ```
-go get github.com/chimeracoder/gojson
+go get github.com/ChimeraCoder/gojson
 ```
 
 gojson should now be on your path (in $GOPATH/bin)
