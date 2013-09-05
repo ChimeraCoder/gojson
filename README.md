@@ -45,11 +45,16 @@ type User struct {
 ```
 
 Installation
-----------
+------------
 
 ```sh
 $ go get github.com/tmc/gojson
 ```
+
+Related Work
+------------
+
+github.com/str1ngs/jflect 
 
 License 
 ----------
