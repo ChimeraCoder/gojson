@@ -11,7 +11,7 @@ import (
 // It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar"}`)
-	if _, err := generate(i, "TestStruct", "gojson_test"); err != nil {
+	if _, err := generate(i, "TestStruct", "main"); err != nil {
 		t.Error("generate() error:", err)
 	}
 }
@@ -19,7 +19,7 @@ func TestSimpleJson(t *testing.T) {
 // TestNullableJson tests that a null JSON value is handled properly
 func TestNullableJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar", "baz" : null}`)
-	if _, err := generate(i, "TestStruct", "gojson_test"); err != nil {
+	if _, err := generate(i, "TestStruct", "main"); err != nil {
 		t.Error("generate() error:", err)
 	}
 }

@@ -1,9 +1,9 @@
-// gojson generates go struct defintions from JSON documents
+// json-to-struct generates go struct defintions from JSON documents
 //
 // Reads from stdin and prints to stdout
 //
 // Example:
-// 	curl -s https://api.github.com/users/tmc | gojson -name=User
+// 	curl -s https://api.github.com/users/tmc | json-to-struct -name=User
 //
 // Output:
 // 	package main
