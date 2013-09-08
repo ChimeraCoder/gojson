@@ -32,6 +32,14 @@ func TestSimpleArray(t *testing.T) {
 	}
 }
 
+// TestInvalidFieldChars tests that a document with invalid field chars is handled correctly
+func TestInvalidFieldChars(t *testing.T) {
+	i := strings.NewReader(`{"f.o-o" : 42}`)
+	if _, err := generate(i, "TestStruct", "main"); err != nil {
+		t.Error("generate() error:", err)
+	}
+}
+
 // Test example document
 func TestExample(t *testing.T) {
 	i, err := os.Open("example.json")

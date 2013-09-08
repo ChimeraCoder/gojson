@@ -52,6 +52,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"unicode"
 )
 
 var (
@@ -85,7 +86,11 @@ func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 		pkgName,
 		structName,
 		generateTypes(result, 0))
-	return format.Source([]byte(src))
+	formatted, err := format.Source([]byte(src))
+	if err != nil {
+		err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
+	}
+	return formatted, err
 }
 
 // Generate go struct entries for a map[string]interface{} structure
@@ -137,7 +142,18 @@ func fmtFieldName(s string) string {
 			parts[len(parts)-1] = strings.ToUpper(last)
 		}
 	}
-	return strings.Join(parts, "")
+	assembled := strings.Join(parts, "")
+	runes := []rune(assembled)
+	for i, c := range runes {
+		ok := unicode.IsLetter(c) || unicode.IsDigit(c)
+		if i == 0 {
+			ok = unicode.IsLetter(c)
+		}
+		if !ok {
+			runes[i] = '_'
+		}
+	}
+	return string(runes)
 }
 
 // generate an appropriate struct type entry
