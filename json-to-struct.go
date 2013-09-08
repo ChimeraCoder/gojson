@@ -48,6 +48,7 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+
 	"os"
 	"reflect"
 	"sort"
@@ -62,9 +63,23 @@ var (
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
 func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
-	result := map[string]interface{}{}
-	if err := json.NewDecoder(input).Decode(&result); err != nil {
+	var iresult interface{}
+	var result map[string]interface{}
+	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
 		return nil, err
+	}
+
+	switch iresult := iresult.(type) {
+	case map[string]interface{}:
+		result = iresult
+	case []map[string]interface{}:
+		if len(iresult) > 0 {
+			result = iresult[0]
+		} else {
+			return nil, fmt.Errorf("empty array")
+		}
+	default:
+		return nil, fmt.Errorf("unexpected type: %T", iresult)
 	}
 
 	src := fmt.Sprintf("package %s\ntype %s %s}",
@@ -89,7 +104,10 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 		valueType := typeForValue(value)
 
 		//If a nested value, recurse
-		if value, nested := value.(map[string]interface{}); nested {
+		switch value := value.(type) {
+		case []map[string]interface{}:
+			valueType = "[]" + generateTypes(value[0], depth+1) + "}"
+		case map[string]interface{}:
 			valueType = generateTypes(value, depth+1) + "}"
 		}
 
@@ -126,16 +144,17 @@ func fmtFieldName(s string) string {
 // generate an appropriate struct type entry
 func typeForValue(value interface{}) string {
 	//Check if this is an array
-
 	if objects, ok := value.([]interface{}); ok {
 		types := make(map[reflect.Type]bool, 0)
 		for _, o := range objects {
 			types[reflect.TypeOf(o)] = true
 		}
 		if len(types) == 1 {
-			return "[]" + reflect.TypeOf(objects[0]).Name()
+			return "[]" + typeForValue(objects[0])
 		}
 		return "[]interface{}"
+	} else if object, ok := value.(map[string]interface{}); ok {
+		return generateTypes(object, 0) + "}"
 	} else if reflect.TypeOf(value) == nil {
 		return "interface{}"
 	}
@@ -162,7 +181,6 @@ func main() {
 
 	if output, err := generate(os.Stdin, *name, *pkg); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
-		fmt.Fprintln(os.Stderr, os.Args[0], "expects a top-level object (not an array)")
 		os.Exit(1)
 	} else {
 		fmt.Print(string(output))

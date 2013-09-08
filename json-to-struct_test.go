@@ -24,6 +24,14 @@ func TestNullableJson(t *testing.T) {
 	}
 }
 
+// TestSimpleArray tests that an array without conflicting types is handled correctly
+func TestSimpleArray(t *testing.T) {
+	i := strings.NewReader(`{"foo" : [{"bar": 24}, {"bar" : 42}]}`)
+	if _, err := generate(i, "TestStruct", "main"); err != nil {
+		t.Error("generate() error:", err)
+	}
+}
+
 // Test example document
 func TestExample(t *testing.T) {
 	i, err := os.Open("example.json")
