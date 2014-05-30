@@ -40,29 +40,22 @@
 // 		URL               string      `json:"url"`
 // 	}
 
-package main
+package json2struct
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"go/format"
 	"io"
-	"os"
 	"reflect"
 	"sort"
 	"strings"
 	"unicode"
 )
 
-var (
-	name = flag.String("name", "Foo", "the name of the struct")
-	pkg  = flag.String("pkg", "main", "the name of the package for the generated code")
-)
-
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
-func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
+func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	var iresult interface{}
 	var result map[string]interface{}
 	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
@@ -174,30 +167,4 @@ func typeForValue(value interface{}) string {
 		return "interface{}"
 	}
 	return reflect.TypeOf(value).Name()
-}
-
-// Return true if os.Stdin appears to be interactive
-func isInteractive() bool {
-	fileInfo, err := os.Stdin.Stat()
-	if err != nil {
-		return false
-	}
-	return fileInfo.Mode()&(os.ModeCharDevice|os.ModeCharDevice) != 0
-}
-
-func main() {
-	flag.Parse()
-
-	if isInteractive() {
-		flag.Usage()
-		fmt.Fprintln(os.Stderr, "Expects input on stdin")
-		os.Exit(1)
-	}
-
-	if output, err := generate(os.Stdin, *name, *pkg); err != nil {
-		fmt.Fprintln(os.Stderr, "error parsing", err)
-		os.Exit(1)
-	} else {
-		fmt.Print(string(output))
-	}
 }

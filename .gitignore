@@ -5,4 +5,4 @@
 *.log
 build/
 conf.go
-gojson
+_build/
