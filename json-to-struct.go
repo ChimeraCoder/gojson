@@ -39,7 +39,6 @@
 // 		UpdatedAt         string      `json:"updated_at"`
 // 		URL               string      `json:"url"`
 // 	}
-
 package main
 
 import (
