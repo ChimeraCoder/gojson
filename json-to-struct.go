@@ -47,6 +47,7 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+	"math"
 	"os"
 	"reflect"
 	"sort"
@@ -171,6 +172,22 @@ func typeForValue(value interface{}) string {
 		return generateTypes(object, 0) + "}"
 	} else if reflect.TypeOf(value) == nil {
 		return "interface{}"
+	}
+	v := reflect.TypeOf(value).Name()
+	if v == "float64" {
+		v = disambiguateFloatInt(value)
+	}
+	return v
+}
+
+// All numbers will initially be read as float64
+// If the number appears to be an integer value, use int instead
+func disambiguateFloatInt(value interface{}) string {
+	const epsilon = .0001
+	vfloat := value.(float64)
+	if math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
+		var tmp int = 1
+		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
 }
