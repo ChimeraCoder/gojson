@@ -15,7 +15,7 @@ type User struct {
 	GistsURL          string      `json:"gists_url"`
 	GravatarID        string      `json:"gravatar_id"`
 	Hireable          bool        `json:"hireable"`
-	HtmlURL           string      `json:"html_url"`
+	HTMLURL           string      `json:"html_url"`
 	ID                int         `json:"id"`
 	Location          string      `json:"location"`
 	Login             string      `json:"login"`
