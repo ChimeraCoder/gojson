@@ -61,3 +61,25 @@ func TestExample(t *testing.T) {
 		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
 	}
 }
+
+func TestFmtFieldName(t *testing.T) {
+	type TestCase struct {
+		in  string
+		out string
+	}
+
+	testCases := []TestCase{
+		TestCase{in: "foo_id", out: "FooID"},
+		TestCase{in: "fooId", out: "FooID"},
+		TestCase{in: "foo_url", out: "FooURL"},
+		TestCase{in: "foobar", out: "Foobar"},
+		TestCase{in: "url_sample", out: "URLSample"},
+	}
+
+	for _, testCase := range testCases {
+		lintField := fmtFieldName(testCase.in)
+		if lintField != testCase.out {
+			t.Errorf("error fmtFiledName %s != %s (%s)", testCase.in, testCase.out, lintField)
+		}
+	}
+}
