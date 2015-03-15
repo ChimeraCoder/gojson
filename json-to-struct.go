@@ -102,7 +102,7 @@ var commonInitialisms = map[string]bool{
 }
 
 // Given a JSON string representation of an object and a name structName,
-// attemp to generate a struct definition
+// attempt to generate a struct definition
 func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	var iresult interface{}
 	var result map[string]interface{}
