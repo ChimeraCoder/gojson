@@ -61,7 +61,7 @@ var (
 	name       = flag.String("name", "Foo", "the name of the struct")
 	pkg        = flag.String("pkg", "main", "the name of the package for the generated code")
 	inputName  = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
-	outputName = flag.String("o", "", "the name of the input file containing JSON (if input not provided via STDIN)")
+	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
 )
 
 // commonInitialisms is a set of common initialisms.
