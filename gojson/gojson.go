@@ -50,7 +50,7 @@ import (
 	"log"
 	"os"
 
-	. "github.com/ChimeraCoder/gojson"
+	. "github.com/jmervine/gojson"
 )
 
 var (
