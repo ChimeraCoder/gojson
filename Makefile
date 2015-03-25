@@ -8,4 +8,7 @@ test:
 format:
 	gofmt -w -e -s -l *.go **/*.go
 
-.PHONY: test format
+clean:
+	rm -rf build
+
+.PHONY: test format clean
