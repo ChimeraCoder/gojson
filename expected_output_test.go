@@ -8,21 +8,21 @@ type User struct {
 	CreatedAt         string      `json:"created_at"`
 	Email             string      `json:"email"`
 	EventsURL         string      `json:"events_url"`
-	Followers         float64     `json:"followers"`
+	Followers         int         `json:"followers"`
 	FollowersURL      string      `json:"followers_url"`
-	Following         float64     `json:"following"`
+	Following         int         `json:"following"`
 	FollowingURL      string      `json:"following_url"`
 	GistsURL          string      `json:"gists_url"`
 	GravatarID        string      `json:"gravatar_id"`
 	Hireable          bool        `json:"hireable"`
-	HtmlURL           string      `json:"html_url"`
-	ID                float64     `json:"id"`
+	HTMLURL           string      `json:"html_url"`
+	ID                int         `json:"id"`
 	Location          string      `json:"location"`
 	Login             string      `json:"login"`
 	Name              string      `json:"name"`
 	OrganizationsURL  string      `json:"organizations_url"`
-	PublicGists       float64     `json:"public_gists"`
-	PublicRepos       float64     `json:"public_repos"`
+	PublicGists       int         `json:"public_gists"`
+	PublicRepos       int         `json:"public_repos"`
 	ReceivedEventsURL string      `json:"received_events_url"`
 	ReposURL          string      `json:"repos_url"`
 	StarredURL        string      `json:"starred_url"`

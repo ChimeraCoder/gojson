@@ -39,7 +39,6 @@
 // 		UpdatedAt         string      `json:"updated_at"`
 // 		URL               string      `json:"url"`
 // 	}
-
 package json2struct
 
 import (
@@ -47,11 +46,49 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+	"math"
 	"reflect"
 	"sort"
 	"strings"
 	"unicode"
 )
+
+// commonInitialisms is a set of common initialisms.
+// Only add entries that are highly unlikely to be non-initialisms.
+// For instance, "ID" is fine (Freudian code is rare), but "AND" is not.
+var commonInitialisms = map[string]bool{
+	"API":   true,
+	"ASCII": true,
+	"CPU":   true,
+	"CSS":   true,
+	"DNS":   true,
+	"EOF":   true,
+	"GUID":  true,
+	"HTML":  true,
+	"HTTP":  true,
+	"HTTPS": true,
+	"ID":    true,
+	"IP":    true,
+	"JSON":  true,
+	"LHS":   true,
+	"QPS":   true,
+	"RAM":   true,
+	"RHS":   true,
+	"RPC":   true,
+	"SLA":   true,
+	"SMTP":  true,
+	"SSH":   true,
+	"TLS":   true,
+	"TTL":   true,
+	"UI":    true,
+	"UID":   true,
+	"UUID":  true,
+	"URI":   true,
+	"URL":   true,
+	"UTF8":  true,
+	"VM":    true,
+	"XML":   true,
+}
 
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
@@ -117,26 +154,14 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 	return structure
 }
 
-var uppercaseFixups = map[string]bool{"id": true, "url": true}
-
 // fmtFieldName formats a string as a struct key
 //
 // Example:
 // 	fmtFieldName("foo_id")
 // Output: FooID
 func fmtFieldName(s string) string {
-	parts := strings.Split(s, "_")
-	for i := range parts {
-		parts[i] = strings.Title(parts[i])
-	}
-	if len(parts) > 0 {
-		last := parts[len(parts)-1]
-		if uppercaseFixups[strings.ToLower(last)] {
-			parts[len(parts)-1] = strings.ToUpper(last)
-		}
-	}
-	assembled := strings.Join(parts, "")
-	runes := []rune(assembled)
+	name := lintFieldName(s)
+	runes := []rune(name)
 	for i, c := range runes {
 		ok := unicode.IsLetter(c) || unicode.IsDigit(c)
 		if i == 0 {
@@ -145,6 +170,77 @@ func fmtFieldName(s string) string {
 		if !ok {
 			runes[i] = '_'
 		}
+	}
+	return string(runes)
+}
+
+func lintFieldName(name string) string {
+	// Fast path for simple cases: "_" and all lowercase.
+	if name == "_" {
+		return name
+	}
+	allLower := true
+	for _, r := range name {
+		if !unicode.IsLower(r) {
+			allLower = false
+			break
+		}
+	}
+	if allLower {
+		runes := []rune(name)
+		if u := strings.ToUpper(name); commonInitialisms[u] {
+			copy(runes[0:], []rune(u))
+		} else {
+			runes[0] = unicode.ToUpper(runes[0])
+		}
+		return string(runes)
+	}
+
+	// Split camelCase at any lower->upper transition, and split on underscores.
+	// Check each word for common initialisms.
+	runes := []rune(name)
+	w, i := 0, 0 // index of start of word, scan
+	for i+1 <= len(runes) {
+		eow := false // whether we hit the end of a word
+
+		if i+1 == len(runes) {
+			eow = true
+		} else if runes[i+1] == '_' {
+			// underscore; shift the remainder forward over any run of underscores
+			eow = true
+			n := 1
+			for i+n+1 < len(runes) && runes[i+n+1] == '_' {
+				n++
+			}
+
+			// Leave at most one underscore if the underscore is between two digits
+			if i+n+1 < len(runes) && unicode.IsDigit(runes[i]) && unicode.IsDigit(runes[i+n+1]) {
+				n--
+			}
+
+			copy(runes[i+1:], runes[i+n+1:])
+			runes = runes[:len(runes)-n]
+		} else if unicode.IsLower(runes[i]) && !unicode.IsLower(runes[i+1]) {
+			// lower->non-lower
+			eow = true
+		}
+		i++
+		if !eow {
+			continue
+		}
+
+		// [w,i) is a word.
+		word := string(runes[w:i])
+		if u := strings.ToUpper(word); commonInitialisms[u] {
+			// All the common initialisms are ASCII,
+			// so we can replace the bytes exactly.
+			copy(runes[w:], []rune(u))
+
+		} else if strings.ToLower(word) == word {
+			// already all lowercase, and not the first word, so uppercase the first character.
+			runes[w] = unicode.ToUpper(runes[w])
+		}
+		w = i
 	}
 	return string(runes)
 }
@@ -165,6 +261,22 @@ func typeForValue(value interface{}) string {
 		return generateTypes(object, 0) + "}"
 	} else if reflect.TypeOf(value) == nil {
 		return "interface{}"
+	}
+	v := reflect.TypeOf(value).Name()
+	if v == "float64" {
+		v = disambiguateFloatInt(value)
+	}
+	return v
+}
+
+// All numbers will initially be read as float64
+// If the number appears to be an integer value, use int instead
+func disambiguateFloatInt(value interface{}) string {
+	const epsilon = .0001
+	vfloat := value.(float64)
+	if math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
+		var tmp int = 1
+		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
 }

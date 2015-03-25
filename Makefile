@@ -1,13 +1,11 @@
-build: format test _build
-	go build -o _build/gojson ./gojson
+build/gojson: format test
+	mkdir -p build
+	go build -o build/gojson ./gojson
 
 test:
-	go test
+	go test -v
 
 format:
 	gofmt -w -e -s -l *.go **/*.go
 
-_build:
-	mkdir _build
-
-.PHONY: build test format
+.PHONY: test format
