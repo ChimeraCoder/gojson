@@ -509,7 +509,7 @@ func disambiguateFloatInt(value interface{}) string {
 	const epsilon = .0001
 	vfloat := value.(float64)
 	if !*floats && math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
-		var tmp int = 1
+		var tmp int
 		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
