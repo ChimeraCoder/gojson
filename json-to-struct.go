@@ -99,6 +99,7 @@ package gojson
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"go/format"
 	"io"
@@ -110,6 +111,14 @@ import (
 	"unicode"
 
 	"gopkg.in/yaml.v2"
+)
+
+var (
+	name       = flag.String("name", "Foo", "the name of the struct")
+	pkg        = flag.String("pkg", "main", "the name of the package for the generated code")
+	floats     = flag.Bool("floats", false, "whether to always use float64 for JSON numbers")
+	inputName  = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
+	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
 )
 
 // commonInitialisms is a set of common initialisms.
@@ -499,7 +508,7 @@ func typeForValue(value interface{}, structName string, tags []string, subStruct
 func disambiguateFloatInt(value interface{}) string {
 	const epsilon = .0001
 	vfloat := value.(float64)
-	if math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
+	if !*floats && math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
 		var tmp int = 1
 		return reflect.TypeOf(tmp).Name()
 	}

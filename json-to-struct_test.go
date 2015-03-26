@@ -41,6 +41,31 @@ func TestInvalidFieldChars(t *testing.T) {
 	}
 }
 
+// TestDisambiguateFloatInt tests that disambiguateFloatInt correctly
+// converts JSON numbers to the desired types.
+func TestDisambiguateFloatInt(t *testing.T) {
+	examples := []struct {
+		FloatsOnly bool
+		In         interface{}
+		Out        string
+	}{
+		{FloatsOnly: false, In: 2.2, Out: "float64"},
+		{FloatsOnly: false, In: 2.0, Out: "int"},
+		{FloatsOnly: false, In: float64(2), Out: "int"},
+		{FloatsOnly: true, In: 2.2, Out: "float64"},
+		{FloatsOnly: true, In: 2.0, Out: "float64"},
+		{FloatsOnly: true, In: float64(2), Out: "float64"},
+	}
+
+	for i, ex := range examples {
+		*floats = ex.FloatsOnly
+		if actual := disambiguateFloatInt(ex.In); actual != ex.Out {
+			t.Errorf("[Example %d] got %q, but expected %q", i+1, actual, ex.Out)
+		}
+	}
+	*floats = false
+}
+
 // Test example document
 func TestExample(t *testing.T) {
 	i, err := os.Open(filepath.Join("examples", "example.json"))
