@@ -119,6 +119,13 @@ func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 		} else {
 			return nil, fmt.Errorf("empty array")
 		}
+	case []interface{}:
+		src := fmt.Sprintf("package %s\n\ntype %s %s\n",
+			pkgName,
+			structName,
+			"[]interface{}")
+		return []byte(src), nil
+
 	default:
 		return nil, fmt.Errorf("unexpected type: %T", iresult)
 	}
