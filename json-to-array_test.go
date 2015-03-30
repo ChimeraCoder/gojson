@@ -1,4 +1,4 @@
-package main
+package json2struct
 
 import (
 	"os"
@@ -18,7 +18,7 @@ func TestExampleArray(t *testing.T) {
 type Users []interface{}
 `
 
-	actual, err := generate(i, "Users", "main")
+	actual, err := Generate(i, "Users", "main")
 	if err != nil {
 		t.Error(err)
 	}

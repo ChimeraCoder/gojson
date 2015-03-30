@@ -1,4 +1,4 @@
-package main
+package json2struct
 
 // This is what we would like example_array.json
 // to generate, though for the time being we'll have to settle
