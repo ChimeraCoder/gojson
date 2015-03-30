@@ -1,4 +1,4 @@
-package main
+package json2struct
 
 type User struct {
 	AvatarURL         string      `json:"avatar_url"`

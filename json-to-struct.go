@@ -39,29 +39,18 @@
 // 		UpdatedAt         string      `json:"updated_at"`
 // 		URL               string      `json:"url"`
 // 	}
-package main
+package json2struct
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"go/format"
 	"io"
-	"io/ioutil"
-	"log"
 	"math"
-	"os"
 	"reflect"
 	"sort"
 	"strings"
 	"unicode"
-)
-
-var (
-	name       = flag.String("name", "Foo", "the name of the struct")
-	pkg        = flag.String("pkg", "main", "the name of the package for the generated code")
-	inputName  = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
-	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
 )
 
 // commonInitialisms is a set of common initialisms.
@@ -102,8 +91,8 @@ var commonInitialisms = map[string]bool{
 }
 
 // Given a JSON string representation of an object and a name structName,
-// attempt to generate a struct definition
-func generate(input io.Reader, structName, pkgName string) ([]byte, error) {
+// attemp to generate a struct definition
+func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	var iresult interface{}
 	var result map[string]interface{}
 	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
@@ -297,49 +286,4 @@ func disambiguateFloatInt(value interface{}) string {
 		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
-}
-
-// Return true if os.Stdin appears to be interactive
-func isInteractive() bool {
-	fileInfo, err := os.Stdin.Stat()
-	if err != nil {
-		return false
-	}
-	return fileInfo.Mode()&(os.ModeCharDevice|os.ModeCharDevice) != 0
-}
-
-func main() {
-	flag.Parse()
-
-	if isInteractive() && *inputName == "" {
-		flag.Usage()
-		fmt.Fprintln(os.Stderr, "Expects input on stdin")
-		os.Exit(1)
-	}
-
-	var input io.Reader
-	input = os.Stdin
-	if *inputName != "" {
-		f, err := os.Open(*inputName)
-		if err != nil {
-			log.Fatalf("reading input file: %s", err)
-		}
-		defer f.Close()
-		input = f
-	}
-
-	if output, err := generate(input, *name, *pkg); err != nil {
-		fmt.Fprintln(os.Stderr, "error parsing", err)
-		os.Exit(1)
-	} else {
-		if *outputName != "" {
-			err := ioutil.WriteFile(*outputName, output, 0644)
-			if err != nil {
-				log.Fatalf("writing output: %s", err)
-			}
-		} else {
-			fmt.Print(string(output))
-		}
-	}
-
 }
