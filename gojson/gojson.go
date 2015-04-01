@@ -3,8 +3,8 @@ package main
 import (
     "strings"
 
-    gojson "github.com/ChimeraCoder/gojson"
     "github.com/gopherjs/gopherjs/js"
+    gojson "github.com/ChimeraCoder/gojson"
 )
 
 type Pet struct {
