@@ -141,7 +141,7 @@ $ go install ./gojson
 **Formatting**
 
 ```
-$ gofmt -w -e -s -l *.go **/*.go
+$ gofmt -w -e -s -l .
 ```
 
 Related Work
