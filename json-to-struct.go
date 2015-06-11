@@ -149,9 +149,7 @@ var commonInitialisms = map[string]bool{
 // attemp to generate a struct definition
 func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	pkg := ""
-	fmt.Printf("pkg: %s\n", pkgName)
 	if pkgName != "" {
-		fmt.Printf("pkg != \"\"\n")
 		pkg = fmt.Sprintf("package %s\n", pkgName)
 	}
 	var iresult interface{}
