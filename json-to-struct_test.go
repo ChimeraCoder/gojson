@@ -1,4 +1,4 @@
-package json2struct
+package main
 
 import (
 	"io/ioutil"
@@ -47,7 +47,7 @@ func TestExample(t *testing.T) {
 		t.Error("error opening example.json", err)
 	}
 
-	expected, err := ioutil.ReadFile("expected_output_test.go")
+	expected, err := ioutil.ReadFile("testdata/expected_output_test.go")
 	if err != nil {
 		t.Error("error reading expected_output_test.go", err)
 	}

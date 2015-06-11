@@ -49,8 +49,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	. "github.com/ChimeraCoder/gojson"
 )
 
 var (
