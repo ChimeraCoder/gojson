@@ -137,7 +137,7 @@ $ make test
 ```
 
 
-Development
+Documentation
 -----------
 Use godoc to see further documentation
 
