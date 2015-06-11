@@ -137,6 +137,17 @@ $ make test
 ```
 
 
+Development
+-----------
+Use godoc to see further documentation
+
+```
+godoc -http=:6060
+```
+
+open browser to http://localhost:6060/pkg/github.com/ChimeraCoder/gojson/
+
+
 Related Work
 ------------
 
