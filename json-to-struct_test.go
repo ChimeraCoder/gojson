@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -56,9 +57,8 @@ func TestExample(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	sactual, sexpected := string(actual), string(expected)
-	if sactual != sexpected {
-		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
+	if !bytes.Equal(actual, expected) {
+		t.Errorf("'%s' (expected) != '%s' (actual)", expected, actual)
 	}
 }
 
