@@ -5,7 +5,7 @@ test:
 	go test -v
 
 format:
-	gofmt -w -e -s -l *.go
+	gofmt -w -e -s -l *.go **.go
 
 clean:
 	rm -rf build
