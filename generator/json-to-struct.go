@@ -52,10 +52,6 @@ var commonInitialisms = map[string]bool{
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
 func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
-	pkg := ""
-	if pkgName != "" {
-		pkg = fmt.Sprintf("package %s\n", pkgName)
-	}
 	var iresult interface{}
 	var result map[string]interface{}
 	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
@@ -72,8 +68,8 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 			return nil, fmt.Errorf("empty array")
 		}
 	case []interface{}:
-		src := fmt.Sprintf("%s\ntype %s %s\n",
-			pkg,
+		src := fmt.Sprintf("package %s\n\ntype %s %s\n",
+			pkgName,
 			structName,
 			"[]interface{}")
 		return []byte(src), nil
@@ -82,8 +78,8 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 		return nil, fmt.Errorf("unexpected type: %T", iresult)
 	}
 
-	src := fmt.Sprintf("%stype %s %s}",
-		pkg,
+	src := fmt.Sprintf("package %s\ntype %s %s}",
+		pkgName,
 		structName,
 		generateTypes(result, 0))
 	formatted, err := format.Source([]byte(src))
