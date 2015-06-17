@@ -1,4 +1,4 @@
-package generator
+package gojson
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 
 // Test example document
 func TestExampleArray(t *testing.T) {
-	i, err := os.Open("../testdata/array.input")
+	i, err := os.Open("testdata/array.input")
 	if err != nil {
 		t.Error("error opening example.json", err)
 	}

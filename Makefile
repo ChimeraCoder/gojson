@@ -1,11 +1,11 @@
 build: format test
-	go build -o build/gojson
+	go build -o build/gojson cmd/gojson/gojson.go
 
 test:
-	go test -v ./...
+	go test -v
 
 format:
-	gofmt -w -e -s -l *.go **/*.go
+	gofmt -w -e -s -l *.go
 
 clean:
 	rm -rf build

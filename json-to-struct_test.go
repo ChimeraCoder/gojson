@@ -1,4 +1,4 @@
-package generator
+package gojson
 
 import (
 	"bytes"
@@ -43,12 +43,12 @@ func TestInvalidFieldChars(t *testing.T) {
 
 // Test example document
 func TestExample(t *testing.T) {
-	i, err := os.Open("../testdata/struct.input")
+	i, err := os.Open("testdata/struct.input")
 	if err != nil {
 		t.Error("error opening example.json", err)
 	}
 
-	expected, err := ioutil.ReadFile("../testdata/struct.golden")
+	expected, err := ioutil.ReadFile("testdata/struct.golden")
 	if err != nil {
 		t.Error("error reading expected_output_test.go", err)
 	}

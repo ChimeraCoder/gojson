@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ChimeraCoder/gojson/generator"
+	"github.com/ChimeraCoder/gojson"
 )
 
 var (
@@ -38,7 +38,7 @@ func main() {
 		input = f
 	}
 
-	if output, err := generator.Generate(input, *name, *pkg); err != nil {
+	if output, err := gojson.Generate(input, *name, *pkg); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {

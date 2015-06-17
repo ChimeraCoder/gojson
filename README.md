@@ -104,7 +104,7 @@ Installation
 ----------------
 
 ```sh
-$ go get github.com/ChimeraCoder/gojson
+$ go get github.com/ChimeraCoder/gojson/...
 ```
 
 Assuming `$GOPATH/bin` is in your `PATH`, you can now invoke `gojson` directly.
