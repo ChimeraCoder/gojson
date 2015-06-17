@@ -18,16 +18,6 @@ The flags are:
 
 Examples
 
-Convert a simple json string
-
-	echo '{"hello":"world"}' | gojson
-
-Output:
-
-	type Foo struct {
-	      Hello string `json:"hello"`
-	}
-
 Convert resulting json of an endpoint,
 giving the resulting struct the name "Repository"
 
