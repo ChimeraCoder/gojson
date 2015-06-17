@@ -2,7 +2,7 @@ build: format test
 	go build -o build/gojson
 
 test:
-	go test -v
+	go test -v ./...
 
 format:
 	gofmt -w -e -s -l *.go

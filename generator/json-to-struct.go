@@ -1,4 +1,4 @@
-package gojson
+package generator
 
 import (
 	"encoding/json"

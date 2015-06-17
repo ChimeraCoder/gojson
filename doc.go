@@ -122,4 +122,4 @@ Output:
 		WatchersCount   float64 `json:"watchers_count"`
 	}
 */
-package gojson
+package main
