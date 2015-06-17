@@ -1,4 +1,4 @@
-package json2struct
+package gojson
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 
 // Test example document
 func TestExampleArray(t *testing.T) {
-	i, err := os.Open("example_array.json")
+	i, err := os.Open("testdata/array.input")
 	if err != nil {
 		t.Error("error opening example.json", err)
 	}

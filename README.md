@@ -100,22 +100,14 @@ type Repository struct {
 }
 ```
 
-CLI Installation
+Installation
 ----------------
 
 ```sh
-$ go get github.com/ChimeraCoder/gojson/gojson
+$ go get github.com/ChimeraCoder/gojson/...
 ```
 
 Assuming `$GOPATH/bin` is in your `PATH`, you can now invoke `gojson` directly.
-
-
-API Installation
-----------------
-
-```sh
-$ go get github.com/ChimeraCoder/gojson
-```
 
 Development
 -----------
@@ -126,23 +118,35 @@ $ cd gojson
 $ go test
 ```
 
-**Building CLI**
+**Building**
 
 ```
-$ go build -o _build/gojson ./gojson
-```
-
-**Installing CLI**
-
-```
-$ go install ./gojson
+$ make build
 ```
 
 **Formatting**
 
 ```
-$ gofmt -w -e -s -l .
+$ make format
 ```
+
+**Testing**
+
+```
+$ make test
+```
+
+
+Documentation
+-----------
+Use godoc to see further documentation
+
+```
+godoc -http=:6060
+```
+
+open browser to http://localhost:6060/pkg/github.com/ChimeraCoder/gojson/
+
 
 Related Work
 ------------

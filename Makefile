@@ -1,12 +1,11 @@
-build/gojson: format test
-	mkdir -p build
-	go build -o build/gojson ./gojson
+build: format test
+	go build -o build/gojson cmd/gojson/gojson.go
 
 test:
 	go test -v
 
 format:
-	gofmt -w -e -s -l *.go **/*.go
+	gofmt -w -e -s -l *.go **.go
 
 clean:
 	rm -rf build
