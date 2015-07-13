@@ -242,7 +242,7 @@ func lintFieldName(name string) string {
 		return name
 	}
 
-	if len(name) > 0 && name[0] == '_' {
+	for len(name) > 0 && name[0] == '_' {
 		name = name[1:]
 	}
 
