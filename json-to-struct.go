@@ -104,6 +104,7 @@ import (
 	"math"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -143,6 +144,19 @@ var commonInitialisms = map[string]bool{
 	"UTF8":  true,
 	"VM":    true,
 	"XML":   true,
+}
+
+var intToWordMap = []string{
+	"zero",
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
 }
 
 // Given a JSON string representation of an object and a name structName,
@@ -207,7 +221,7 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 			valueType = generateTypes(value, depth+1) + "}"
 		}
 
-		fieldName := fmtFieldName(key)
+		fieldName := fmtFieldName(stringifyFirstChar(key))
 		structure += fmt.Sprintf("\n%s %s `json:\"%s\"`",
 			fieldName,
 			valueType,
@@ -341,4 +355,17 @@ func disambiguateFloatInt(value interface{}) string {
 		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
+}
+
+// convert first character ints to strings
+func stringifyFirstChar(str string) string {
+	first := str[:1]
+
+	i, err := strconv.ParseInt(first, 10, 8)
+
+	if err != nil {
+		return str
+	}
+
+	return intToWordMap[i] + "_" + str[1:]
 }

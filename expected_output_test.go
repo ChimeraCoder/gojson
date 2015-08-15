@@ -1,6 +1,7 @@
 package json2struct
 
 type User struct {
+	OneNumberKey      int         `json:"1number_key"`
 	AvatarURL         string      `json:"avatar_url"`
 	Bio               interface{} `json:"bio"`
 	Blog              string      `json:"blog"`
