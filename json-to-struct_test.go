@@ -74,6 +74,8 @@ func TestFmtFieldName(t *testing.T) {
 		{in: "foo_url", out: "FooURL"},
 		{in: "foobar", out: "Foobar"},
 		{in: "url_sample", out: "URLSample"},
+		{in: "_id", out: "ID"},
+		{in: "__id", out: "ID"},
 	}
 
 	for _, testCase := range testCases {

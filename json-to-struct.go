@@ -255,6 +255,11 @@ func lintFieldName(name string) string {
 	if name == "_" {
 		return name
 	}
+
+	for len(name) > 0 && name[0] == '_' {
+		name = name[1:]
+	}
+
 	allLower := true
 	for _, r := range name {
 		if !unicode.IsLower(r) {
