@@ -1,7 +1,9 @@
 gojson
 ======
 
-gojson attempts to generate go struct definitions from json documents
+gojson attempts to generate go struct definitions from json or yaml documents
+
+This is a forked version with yaml supported added.
 
 
 Example
