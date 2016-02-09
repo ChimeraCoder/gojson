@@ -97,9 +97,11 @@
 package json2struct
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/format"
+	"gopkg.in/yaml.v2"
 	"io"
 	"math"
 	"reflect"
@@ -144,6 +146,8 @@ var commonInitialisms = map[string]bool{
 	"UTF8":  true,
 	"VM":    true,
 	"XML":   true,
+	"NTP":   true,
+	"DB":    true,
 }
 
 var intToWordMap = []string{
@@ -159,16 +163,56 @@ var intToWordMap = []string{
 	"nine",
 }
 
+type Parser func(io.Reader) (interface{}, error)
+
+func ParseJson(input io.Reader) (interface{}, error) {
+	var result interface{}
+	if err := json.NewDecoder(input).Decode(&result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func ParseYaml(input io.Reader) (interface{}, error) {
+	var result interface{}
+	b, err := readFile(input)
+	if err != nil {
+		return nil, err
+	}
+	if err := yaml.Unmarshal(b, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func readFile(input io.Reader) ([]byte, error) {
+	buf := bytes.NewBuffer(nil)
+	_, err := io.Copy(buf, input)
+	if err != nil {
+		return []byte{}, nil
+	}
+	return buf.Bytes(), nil
+}
+
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
-func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
-	var iresult interface{}
+func Generate(input io.Reader, parser Parser, structName, pkgName string, tags []string) ([]byte, error) {
 	var result map[string]interface{}
-	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
+
+	iresult, err := parser(input)
+	if err != nil {
 		return nil, err
 	}
 
 	switch iresult := iresult.(type) {
+	case map[interface{}]interface{}:
+		result = convertKeysToStrings(iresult)
+	case []map[interface{}]interface{}:
+		if len(iresult) > 0 {
+			result = convertKeysToStrings(iresult[0])
+		} else {
+			return nil, fmt.Errorf("empty array")
+		}
 	case map[string]interface{}:
 		result = iresult
 	case []map[string]interface{}:
@@ -191,7 +235,7 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	src := fmt.Sprintf("package %s\ntype %s %s}",
 		pkgName,
 		structName,
-		generateTypes(result, 0))
+		generateTypes(result, tags, 0))
 	formatted, err := format.Source([]byte(src))
 	if err != nil {
 		err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
@@ -199,8 +243,18 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	return formatted, err
 }
 
+func convertKeysToStrings(obj map[interface{}]interface{}) map[string]interface{} {
+	res := make(map[string]interface{})
+
+	for k, v := range obj {
+		res[fmt.Sprintf("%v", k)] = v
+	}
+
+	return res
+}
+
 // Generate go struct entries for a map[string]interface{} structure
-func generateTypes(obj map[string]interface{}, depth int) string {
+func generateTypes(obj map[string]interface{}, tags []string, depth int) string {
 	structure := "struct {"
 
 	keys := make([]string, 0, len(obj))
@@ -211,21 +265,31 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 
 	for _, key := range keys {
 		value := obj[key]
-		valueType := typeForValue(value)
+		valueType := typeForValue(value, tags)
 
 		//If a nested value, recurse
 		switch value := value.(type) {
+		case []map[interface{}]interface{}:
+			valueType = "[]" + generateTypes(convertKeysToStrings(value[0]), tags, depth+1) + "}"
+		case map[interface{}]interface{}:
+			valueType = generateTypes(convertKeysToStrings(value), tags, depth+1) + "}"
 		case []map[string]interface{}:
-			valueType = "[]" + generateTypes(value[0], depth+1) + "}"
+			valueType = "[]" + generateTypes(value[0], tags, depth+1) + "}"
 		case map[string]interface{}:
-			valueType = generateTypes(value, depth+1) + "}"
+			valueType = generateTypes(value, tags, depth+1) + "}"
 		}
 
 		fieldName := fmtFieldName(stringifyFirstChar(key))
-		structure += fmt.Sprintf("\n%s %s `json:\"%s\"`",
+
+		tagList := make([]string, 0)
+		for _, t := range tags {
+			tagList = append(tagList, fmt.Sprintf("%s:\"%s\"", t, key))
+		}
+
+		structure += fmt.Sprintf("\n%s %s `%s`",
 			fieldName,
 			valueType,
-			key)
+			strings.Join(tagList, " "))
 	}
 	return structure
 }
@@ -275,6 +339,17 @@ func lintFieldName(name string) string {
 			runes[0] = unicode.ToUpper(runes[0])
 		}
 		return string(runes)
+	}
+
+	allUpperWithUnderscore := true
+	for _, r := range name {
+		if !unicode.IsUpper(r) && r != '_' {
+			allUpperWithUnderscore = false
+			break
+		}
+	}
+	if allUpperWithUnderscore {
+		name = strings.ToLower(name)
 	}
 
 	// Split camelCase at any lower->upper transition, and split on underscores.
@@ -327,7 +402,7 @@ func lintFieldName(name string) string {
 }
 
 // generate an appropriate struct type entry
-func typeForValue(value interface{}) string {
+func typeForValue(value interface{}, tags []string) string {
 	//Check if this is an array
 	if objects, ok := value.([]interface{}); ok {
 		types := make(map[reflect.Type]bool, 0)
@@ -335,11 +410,13 @@ func typeForValue(value interface{}) string {
 			types[reflect.TypeOf(o)] = true
 		}
 		if len(types) == 1 {
-			return "[]" + typeForValue(objects[0])
+			return "[]" + typeForValue(objects[0], tags)
 		}
 		return "[]interface{}"
+	} else if object, ok := value.(map[interface{}]interface{}); ok {
+		return generateTypes(convertKeysToStrings(object), tags, 0) + "}"
 	} else if object, ok := value.(map[string]interface{}); ok {
-		return generateTypes(object, 0) + "}"
+		return generateTypes(object, tags, 0) + "}"
 	} else if reflect.TypeOf(value) == nil {
 		return "interface{}"
 	}
