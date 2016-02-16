@@ -51,7 +51,7 @@ import (
 	"os"
 	"strings"
 
-	. "github.com/ChimeraCoder/gojson"
+	. "github.com/darrennoble/gojson"
 )
 
 var (
@@ -61,6 +61,7 @@ var (
 	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
 	format     = flag.String("fmt", "json", "the format of the input data (json or yaml, with json being the defualt)")
 	tags       = flag.String("tags", "fmt", "comma seperated list of the tags to put on the struct, default is the same as fmt")
+	subStruct  = flag.Bool("subStruct", false, "create types for sub-structs (default is false)")
 )
 
 func main() {
@@ -104,7 +105,7 @@ func main() {
 		parser = ParseYaml
 	}
 
-	if output, err := Generate(input, parser, *name, *pkg, tagList); err != nil {
+	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {
