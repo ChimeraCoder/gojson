@@ -160,7 +160,7 @@ var intToWordMap = []string{
 }
 
 // Given a JSON string representation of an object and a name structName,
-// attemp to generate a struct definition
+// attempt to generate a struct definition
 func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	var iresult interface{}
 	var result map[string]interface{}
