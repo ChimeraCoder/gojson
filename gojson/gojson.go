@@ -49,6 +49,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	. "github.com/ChimeraCoder/gojson"
 )
@@ -58,6 +59,7 @@ var (
 	pkg        = flag.String("pkg", "main", "the name of the package for the generated code")
 	inputName  = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
 	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
+	tags       = flag.String("t", "json", "tags to put on the fields (comma separated)")
 )
 
 func main() {
@@ -80,7 +82,7 @@ func main() {
 		input = f
 	}
 
-	if output, err := Generate(input, *name, *pkg); err != nil {
+	if output, err := Generate(input, *name, *pkg, strings.Split(*tags, ",")); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {
