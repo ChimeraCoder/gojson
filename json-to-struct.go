@@ -161,7 +161,7 @@ var intToWordMap = []string{
 
 // Given a JSON string representation of an object and a name structName,
 // attemp to generate a struct definition
-func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
+func Generate(input io.Reader, structName, pkgName string, tags []string) ([]byte, error) {
 	var iresult interface{}
 	var result map[string]interface{}
 	if err := json.NewDecoder(input).Decode(&iresult); err != nil {
@@ -191,7 +191,7 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 	src := fmt.Sprintf("package %s\ntype %s %s}",
 		pkgName,
 		structName,
-		generateTypes(result, 0))
+		generateTypes(result, 0, tags))
 	formatted, err := format.Source([]byte(src))
 	if err != nil {
 		err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
@@ -200,7 +200,7 @@ func Generate(input io.Reader, structName, pkgName string) ([]byte, error) {
 }
 
 // Generate go struct entries for a map[string]interface{} structure
-func generateTypes(obj map[string]interface{}, depth int) string {
+func generateTypes(obj map[string]interface{}, depth int, tags []string) string {
 	structure := "struct {"
 
 	keys := make([]string, 0, len(obj))
@@ -211,21 +211,25 @@ func generateTypes(obj map[string]interface{}, depth int) string {
 
 	for _, key := range keys {
 		value := obj[key]
-		valueType := typeForValue(value)
+		valueType := typeForValue(value, tags)
 
 		//If a nested value, recurse
 		switch value := value.(type) {
 		case []map[string]interface{}:
-			valueType = "[]" + generateTypes(value[0], depth+1) + "}"
+			valueType = "[]" + generateTypes(value[0], depth+1, tags) + "}"
 		case map[string]interface{}:
-			valueType = generateTypes(value, depth+1) + "}"
+			valueType = generateTypes(value, depth+1, tags) + "}"
 		}
 
 		fieldName := fmtFieldName(stringifyFirstChar(key))
-		structure += fmt.Sprintf("\n%s %s `json:\"%s\"`",
+		var tagString string
+		for _, tag := range tags {
+			tagString += fmt.Sprintf("%s:\"%s\" ", tag, key)
+		}
+		structure += fmt.Sprintf("\n%s %s `%s`",
 			fieldName,
 			valueType,
-			key)
+			tagString[0:len(tagString)-1])
 	}
 	return structure
 }
@@ -327,7 +331,7 @@ func lintFieldName(name string) string {
 }
 
 // generate an appropriate struct type entry
-func typeForValue(value interface{}) string {
+func typeForValue(value interface{}, tags []string) string {
 	//Check if this is an array
 	if objects, ok := value.([]interface{}); ok {
 		types := make(map[reflect.Type]bool, 0)
@@ -335,11 +339,11 @@ func typeForValue(value interface{}) string {
 			types[reflect.TypeOf(o)] = true
 		}
 		if len(types) == 1 {
-			return "[]" + typeForValue(objects[0])
+			return "[]" + typeForValue(objects[0], tags)
 		}
 		return "[]interface{}"
 	} else if object, ok := value.(map[string]interface{}); ok {
-		return generateTypes(object, 0) + "}"
+		return generateTypes(object, 0, tags) + "}"
 	} else if reflect.TypeOf(value) == nil {
 		return "interface{}"
 	}

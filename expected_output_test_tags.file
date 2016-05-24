@@ -1,0 +1,34 @@
+package json2struct
+
+type UserTags struct {
+	OneNumberKey      int         `json:"1number_key" bson:"1number_key"`
+	AvatarURL         string      `json:"avatar_url" bson:"avatar_url"`
+	Bio               interface{} `json:"bio" bson:"bio"`
+	Blog              string      `json:"blog" bson:"blog"`
+	Company           string      `json:"company" bson:"company"`
+	CreatedAt         string      `json:"created_at" bson:"created_at"`
+	Email             string      `json:"email" bson:"email"`
+	EventsURL         string      `json:"events_url" bson:"events_url"`
+	Followers         int         `json:"followers" bson:"followers"`
+	FollowersURL      string      `json:"followers_url" bson:"followers_url"`
+	Following         int         `json:"following" bson:"following"`
+	FollowingURL      string      `json:"following_url" bson:"following_url"`
+	GistsURL          string      `json:"gists_url" bson:"gists_url"`
+	GravatarID        string      `json:"gravatar_id" bson:"gravatar_id"`
+	Hireable          bool        `json:"hireable" bson:"hireable"`
+	HTMLURL           string      `json:"html_url" bson:"html_url"`
+	ID                int         `json:"id" bson:"id"`
+	Location          string      `json:"location" bson:"location"`
+	Login             string      `json:"login" bson:"login"`
+	Name              string      `json:"name" bson:"name"`
+	OrganizationsURL  string      `json:"organizations_url" bson:"organizations_url"`
+	PublicGists       int         `json:"public_gists" bson:"public_gists"`
+	PublicRepos       int         `json:"public_repos" bson:"public_repos"`
+	ReceivedEventsURL string      `json:"received_events_url" bson:"received_events_url"`
+	ReposURL          string      `json:"repos_url" bson:"repos_url"`
+	StarredURL        string      `json:"starred_url" bson:"starred_url"`
+	SubscriptionsURL  string      `json:"subscriptions_url" bson:"subscriptions_url"`
+	Type              string      `json:"type" bson:"type"`
+	UpdatedAt         string      `json:"updated_at" bson:"updated_at"`
+	URL               string      `json:"url" bson:"url"`
+}

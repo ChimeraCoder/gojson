@@ -11,7 +11,8 @@ import (
 // It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar"}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	tags := []string{"json"}
+	if _, err := Generate(i, "TestStruct", "main", tags); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -19,7 +20,8 @@ func TestSimpleJson(t *testing.T) {
 // TestNullableJson tests that a null JSON value is handled properly
 func TestNullableJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar", "baz" : null}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	tags := []string{"json"}
+	if _, err := Generate(i, "TestStruct", "main", tags); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -27,7 +29,8 @@ func TestNullableJson(t *testing.T) {
 // TestSimpleArray tests that an array without conflicting types is handled correctly
 func TestSimpleArray(t *testing.T) {
 	i := strings.NewReader(`{"foo" : [{"bar": 24}, {"bar" : 42}]}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	tags := []string{"json"}
+	if _, err := Generate(i, "TestStruct", "main", tags); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -35,7 +38,8 @@ func TestSimpleArray(t *testing.T) {
 // TestInvalidFieldChars tests that a document with invalid field chars is handled correctly
 func TestInvalidFieldChars(t *testing.T) {
 	i := strings.NewReader(`{"f.o-o" : 42}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	tags := []string{"json"}
+	if _, err := Generate(i, "TestStruct", "main", tags); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -52,7 +56,31 @@ func TestExample(t *testing.T) {
 		t.Error("error reading expected_output_test.go", err)
 	}
 
-	actual, err := Generate(i, "User", "json2struct")
+	tags := []string{"json"}
+	actual, err := Generate(i, "User", "json2struct", tags)
+	if err != nil {
+		t.Error(err)
+	}
+	sactual, sexpected := string(actual), string(expected)
+	if sactual != sexpected {
+		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
+	}
+}
+
+// Test example document
+func TestExampleWithMoreThanOneTag(t *testing.T) {
+	i, err := os.Open("example.json")
+	if err != nil {
+		t.Error("error opening example.json", err)
+	}
+
+	expected, err := ioutil.ReadFile("expected_output_test_tags.file")
+	if err != nil {
+		t.Error("error reading expected_output_test_tags.file", err)
+	}
+
+	tags := []string{"json", "bson"}
+	actual, err := Generate(i, "UserTags", "json2struct", tags)
 	if err != nil {
 		t.Error(err)
 	}
