@@ -341,7 +341,7 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 			valueType = subName
 		}
 
-		fieldName := fmtFieldName(stringifyFirstChar(key))
+		fieldName := FmtFieldName(key)
 
 		tagList := make([]string, 0)
 		for _, t := range tags {
@@ -356,12 +356,13 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 	return structure
 }
 
-// fmtFieldName formats a string as a struct key
+// FmtFieldName formats a string as a struct key
 //
 // Example:
-// 	fmtFieldName("foo_id")
+// 	FmtFieldName("foo_id")
 // Output: FooID
-func fmtFieldName(s string) string {
+func FmtFieldName(s string) string {
+	s = stringifyFirstChar(s)
 	name := lintFieldName(s)
 	runes := []rune(name)
 	for i, c := range runes {
