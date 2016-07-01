@@ -280,8 +280,27 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 		//If a nested value, recurse
 		switch value := value.(type) {
 		case []interface{}:
-			if v, ok := value[0].(map[interface{}]interface{}); ok {
-				sub := generateTypes(convertKeysToStrings(v), structName, tags, depth+1, subStructMap) + "}"
+			if len(value) > 0 {
+				if v, ok := value[0].(map[interface{}]interface{}); ok {
+					sub := generateTypes(convertKeysToStrings(v), structName, tags, depth+1, subStructMap) + "}"
+					subName := sub
+
+					if subStructMap != nil {
+						if val, ok := subStructMap[sub]; ok {
+							subName = val
+						} else {
+							subName = fmt.Sprintf("%v_sub%v", structName, len(subStructMap)+1)
+
+							subStructMap[sub] = subName
+						}
+					}
+
+					valueType = "[]" + subName
+				}
+			}
+		case []map[interface{}]interface{}:
+			if len(value) > 0 {
+				sub := generateTypes(convertKeysToStrings(value[0]), structName, tags, depth+1, subStructMap) + "}"
 				subName := sub
 
 				if subStructMap != nil {
@@ -296,21 +315,6 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 
 				valueType = "[]" + subName
 			}
-		case []map[interface{}]interface{}:
-			sub := generateTypes(convertKeysToStrings(value[0]), structName, tags, depth+1, subStructMap) + "}"
-			subName := sub
-
-			if subStructMap != nil {
-				if val, ok := subStructMap[sub]; ok {
-					subName = val
-				} else {
-					subName = fmt.Sprintf("%v_sub%v", structName, len(subStructMap)+1)
-
-					subStructMap[sub] = subName
-				}
-			}
-
-			valueType = "[]" + subName
 		case map[interface{}]interface{}:
 			sub := generateTypes(convertKeysToStrings(value), structName, tags, depth+1, subStructMap) + "}"
 			subName := sub
@@ -327,20 +331,22 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 
 			valueType = subName
 		case []map[string]interface{}:
-			sub := generateTypes(value[0], structName, tags, depth+1, subStructMap) + "}"
-			subName := sub
+			if len(value) > 0 {
+				sub := generateTypes(value[0], structName, tags, depth+1, subStructMap) + "}"
+				subName := sub
 
-			if subStructMap != nil {
-				if val, ok := subStructMap[sub]; ok {
-					subName = val
-				} else {
-					subName = fmt.Sprintf("%v_sub%v", structName, len(subStructMap)+1)
+				if subStructMap != nil {
+					if val, ok := subStructMap[sub]; ok {
+						subName = val
+					} else {
+						subName = fmt.Sprintf("%v_sub%v", structName, len(subStructMap)+1)
 
-					subStructMap[sub] = subName
+						subStructMap[sub] = subName
+					}
 				}
-			}
 
-			valueType = "[]" + subName
+				valueType = "[]" + subName
+			}
 		case map[string]interface{}:
 			sub := generateTypes(value, structName, tags, depth+1, subStructMap) + "}"
 			subName := sub
