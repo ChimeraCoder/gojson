@@ -279,6 +279,23 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 
 		//If a nested value, recurse
 		switch value := value.(type) {
+		case []interface{}:
+			if v, ok := value[0].(map[interface{}]interface{}); ok {
+				sub := generateTypes(convertKeysToStrings(v), structName, tags, depth+1, subStructMap) + "}"
+				subName := sub
+
+				if subStructMap != nil {
+					if val, ok := subStructMap[sub]; ok {
+						subName = val
+					} else {
+						subName = fmt.Sprintf("%v_sub%v", structName, len(subStructMap)+1)
+
+						subStructMap[sub] = subName
+					}
+				}
+
+				valueType = "[]" + subName
+			}
 		case []map[interface{}]interface{}:
 			sub := generateTypes(convertKeysToStrings(value[0]), structName, tags, depth+1, subStructMap) + "}"
 			subName := sub
