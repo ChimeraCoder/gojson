@@ -242,8 +242,15 @@ func Generate(input io.Reader, parser Parser, structName, pkgName string, tags [
 		structName,
 		generateTypes(result, structName, tags, 0, subStructMap))
 
-	for k, v := range subStructMap {
-		src = fmt.Sprintf("%v\n\ntype %v %v", src, v, k)
+	keys := make([]string, 0, len(subStructMap))
+	for key := range subStructMap {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		src = fmt.Sprintf("%v\n\ntype %v %v", src, subStructMap[k], k)
 	}
 
 	formatted, err := format.Source([]byte(src))
