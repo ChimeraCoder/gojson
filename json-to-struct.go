@@ -392,9 +392,17 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 // 	FmtFieldName("foo_id")
 // Output: FooID
 func FmtFieldName(s string) string {
-	s = stringifyFirstChar(s)
+	runes := []rune(s)
+	for len(runes) > 0 && !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
+		runes = runes[1:]
+	}
+	if len(runes) == 0 {
+		return "_"
+	}
+
+	s = stringifyFirstChar(string(runes))
 	name := lintFieldName(s)
-	runes := []rune(name)
+	runes = []rune(name)
 	for i, c := range runes {
 		ok := unicode.IsLetter(c) || unicode.IsDigit(c)
 		if i == 0 {
@@ -404,17 +412,18 @@ func FmtFieldName(s string) string {
 			runes[i] = '_'
 		}
 	}
-	return string(runes)
+	s = string(runes)
+	s = strings.Trim(s, "_")
+	if len(s) == 0 {
+		return "_"
+	}
+	return s
 }
 
 func lintFieldName(name string) string {
 	// Fast path for simple cases: "_" and all lowercase.
 	if name == "_" {
 		return name
-	}
-
-	for len(name) > 0 && name[0] == '_' {
-		name = name[1:]
 	}
 
 	allLower := true
