@@ -288,8 +288,14 @@ func generateTypes(obj map[string]interface{}, structName string, tags []string,
 		switch value := value.(type) {
 		case []interface{}:
 			if len(value) > 0 {
+				sub := ""
 				if v, ok := value[0].(map[interface{}]interface{}); ok {
-					sub := generateTypes(convertKeysToStrings(v), structName, tags, depth+1, subStructMap) + "}"
+					sub = generateTypes(convertKeysToStrings(v), structName, tags, depth+1, subStructMap) + "}"
+				} else if v, ok := value[0].(map[string]interface{}); ok {
+					sub = generateTypes(v, structName, tags, depth+1, subStructMap) + "}"
+				}
+
+				if sub != "" {
 					subName := sub
 
 					if subStructMap != nil {
