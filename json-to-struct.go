@@ -535,6 +535,14 @@ func mergeElements(i interface{}) interface{} {
 }
 
 func mergeObjects(o1, o2 interface{}) interface{} {
+	if o1 == nil {
+		return o2
+	}
+
+	if o2 == nil {
+		return o1
+	}
+
 	if reflect.TypeOf(o1) != reflect.TypeOf(o2) {
 		return nil
 	}
