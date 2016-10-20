@@ -79,7 +79,7 @@ func TestFmtFieldName(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		lintField := fmtFieldName(testCase.in)
+		lintField := FmtFieldName(testCase.in)
 		if lintField != testCase.out {
 			t.Errorf("error fmtFiledName %s != %s (%s)", testCase.in, testCase.out, lintField)
 		}
