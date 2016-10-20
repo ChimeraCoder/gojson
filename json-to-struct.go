@@ -530,7 +530,7 @@ func mergeElements(i interface{}) interface{} {
 		for j := 1; j < l; j++ {
 			i[0] = mergeObjects(i[0], i[j])
 		}
-		return i
+		return i[0:1]
 	}
 }
 
@@ -544,9 +544,7 @@ func mergeObjects(o1, o2 interface{}) interface{} {
 		return o1
 	case []interface{}:
 		if i2, ok := o2.([]interface{}); ok {
-			i3 := []interface{}{}
-			i3 = append(i3, i...)
-			i3 = append(i3, i2...)
+			i3 := append(i, i2...)
 			return mergeElements(i3)
 		}
 		return mergeElements(i)
