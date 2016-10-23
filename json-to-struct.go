@@ -101,7 +101,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/format"
-	"gopkg.in/yaml.v2"
 	"io"
 	"math"
 	"reflect"
@@ -109,6 +108,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"gopkg.in/yaml.v2"
 )
 
 // commonInitialisms is a set of common initialisms.

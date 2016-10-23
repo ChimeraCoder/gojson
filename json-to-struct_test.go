@@ -3,6 +3,7 @@ package json2struct
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -42,12 +43,12 @@ func TestInvalidFieldChars(t *testing.T) {
 
 // Test example document
 func TestExample(t *testing.T) {
-	i, err := os.Open("example.json")
+	i, err := os.Open(filepath.Join("examples", "example.json"))
 	if err != nil {
 		t.Error("error opening example.json", err)
 	}
 
-	expected, err := ioutil.ReadFile("expected_output_test.go")
+	expected, err := ioutil.ReadFile(filepath.Join("examples", "expected_output_test.go"))
 	if err != nil {
 		t.Error("error reading expected_output_test.go", err)
 	}
