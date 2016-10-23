@@ -1,4 +1,4 @@
-package json2struct
+package gojson
 
 import (
 	"io/ioutil"
@@ -15,7 +15,7 @@ func TestExampleArray(t *testing.T) {
 	}
 	defer i.Close()
 
-	expectedf, err := os.Open(filepath.Join("examples", "example_array.go"))
+	expectedf, err := os.Open(filepath.Join("examples", "example_array.go.out"))
 	if err != nil {
 		t.Fatal("error opening example_array.go: %s", err)
 	}
@@ -26,7 +26,7 @@ func TestExampleArray(t *testing.T) {
 		t.Fatalf("error reading example_array.go: %s", err)
 	}
 
-	actual, err := Generate(i, ParseJson, "Users", "main", []string{"json"}, false)
+	actual, err := Generate(i, ParseJson, "Users", "gojson", []string{"json"}, false)
 	if err != nil {
 		t.Fatal(err)
 	}

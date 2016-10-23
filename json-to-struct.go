@@ -94,7 +94,7 @@
 //     	Watchers        float64 `json:"watchers"`
 //     	WatchersCount   float64 `json:"watchers_count"`
 // 	}
-package json2struct
+package gojson
 
 import (
 	"bytes"
