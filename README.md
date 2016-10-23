@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/ChimeraCoder/gojson.svg?branch=master)](https://travis-ci.org/ChimeraCoder/gojson)
 gojson
 ======
 
