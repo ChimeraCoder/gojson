@@ -18,7 +18,7 @@ func TestExampleArray(t *testing.T) {
 type Users []interface{}
 `
 
-	actual, err := Generate(i, "Users", "main")
+	actual, err := Generate(i, ParseJson, "Users", "main", []string{"json"}, false)
 	if err != nil {
 		t.Error(err)
 	}
