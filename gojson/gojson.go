@@ -49,6 +49,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	. "github.com/ChimeraCoder/gojson"
 )
@@ -58,10 +59,26 @@ var (
 	pkg        = flag.String("pkg", "main", "the name of the package for the generated code")
 	inputName  = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
 	outputName = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
+	format     = flag.String("fmt", "json", "the format of the input data (json or yaml, defaults to json)")
+	tags       = flag.String("tags", "fmt", "comma seperated list of the tags to put on the struct, default is the same as fmt")
+	subStruct  = flag.Bool("subStruct", false, "create types for sub-structs (default is false)")
 )
 
 func main() {
 	flag.Parse()
+
+	if *format != "json" && *format != "yaml" {
+		flag.Usage()
+		fmt.Fprintln(os.Stderr, "fmt must be json or yaml")
+		os.Exit(1)
+	}
+
+	tagList := make([]string, 0)
+	if tags == nil || *tags == "" || *tags == "fmt" {
+		tagList = append(tagList, *format)
+	} else {
+		tagList = strings.Split(*tags, ",")
+	}
 
 	if isInteractive() && *inputName == "" {
 		flag.Usage()
@@ -80,7 +97,15 @@ func main() {
 		input = f
 	}
 
-	if output, err := Generate(input, *name, *pkg); err != nil {
+	var parser Parser
+	switch *format {
+	case "json":
+		parser = ParseJson
+	case "yaml":
+		parser = ParseYaml
+	}
+
+	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {

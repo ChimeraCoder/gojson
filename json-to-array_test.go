@@ -1,29 +1,37 @@
-package json2struct
+package gojson
 
 import (
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 // Test example document
 func TestExampleArray(t *testing.T) {
-	i, err := os.Open("example_array.json")
+	i, err := os.Open(filepath.Join("examples", "example_array.json"))
 	if err != nil {
-		t.Error("error opening example.json", err)
+		t.Fatal("error opening example.json: %s", err)
+	}
+	defer i.Close()
+
+	expectedf, err := os.Open(filepath.Join("examples", "example_array.go.out"))
+	if err != nil {
+		t.Fatal("error opening example_array.go: %s", err)
+	}
+	defer expectedf.Close()
+
+	expectedBts, err := ioutil.ReadAll(expectedf)
+	if err != nil {
+		t.Fatalf("error reading example_array.go: %s", err)
 	}
 
-	// TODO we can do better than []interface{} for homogenous structs
-	expected := `package main
-
-type Users []interface{}
-`
-
-	actual, err := Generate(i, "Users", "main")
+	actual, err := Generate(i, ParseJson, "Users", "gojson", []string{"json"}, false)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	sactual, sexpected := string(actual), string(expected)
+	sactual, sexpected := string(actual), string(expectedBts)
 	if sactual != sexpected {
-		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
+		t.Fatalf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
 	}
 }

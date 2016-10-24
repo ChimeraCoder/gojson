@@ -1,7 +1,11 @@
-package json2struct
+package gojson
 
-type User struct {
-	OneNumberKey      int         `json:"1number_key"`
+// This is what we would like example_array.json
+// to generate, though for the time being we'll have to settle
+// for []interface{}
+// https://github.com/ChimeraCoder/gojson/issues/17
+
+type Users []struct {
 	AvatarURL         string      `json:"avatar_url"`
 	Bio               interface{} `json:"bio"`
 	Blog              string      `json:"blog"`

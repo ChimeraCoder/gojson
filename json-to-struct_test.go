@@ -1,8 +1,9 @@
-package json2struct
+package gojson
 
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -11,7 +12,7 @@ import (
 // It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar"}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -19,7 +20,7 @@ func TestSimpleJson(t *testing.T) {
 // TestNullableJson tests that a null JSON value is handled properly
 func TestNullableJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar", "baz" : null}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -27,7 +28,7 @@ func TestNullableJson(t *testing.T) {
 // TestSimpleArray tests that an array without conflicting types is handled correctly
 func TestSimpleArray(t *testing.T) {
 	i := strings.NewReader(`{"foo" : [{"bar": 24}, {"bar" : 42}]}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -35,24 +36,24 @@ func TestSimpleArray(t *testing.T) {
 // TestInvalidFieldChars tests that a document with invalid field chars is handled correctly
 func TestInvalidFieldChars(t *testing.T) {
 	i := strings.NewReader(`{"f.o-o" : 42}`)
-	if _, err := Generate(i, "TestStruct", "main"); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
 
 // Test example document
 func TestExample(t *testing.T) {
-	i, err := os.Open("example.json")
+	i, err := os.Open(filepath.Join("examples", "example.json"))
 	if err != nil {
 		t.Error("error opening example.json", err)
 	}
 
-	expected, err := ioutil.ReadFile("expected_output_test.go")
+	expected, err := ioutil.ReadFile(filepath.Join("examples", "expected_output_test.go.out"))
 	if err != nil {
 		t.Error("error reading expected_output_test.go", err)
 	}
 
-	actual, err := Generate(i, "User", "json2struct")
+	actual, err := Generate(i, ParseJson, "User", "gojson", []string{"json"}, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -79,7 +80,7 @@ func TestFmtFieldName(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		lintField := fmtFieldName(testCase.in)
+		lintField := FmtFieldName(testCase.in)
 		if lintField != testCase.out {
 			t.Errorf("error fmtFiledName %s != %s (%s)", testCase.in, testCase.out, lintField)
 		}
