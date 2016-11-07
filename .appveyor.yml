@@ -1,0 +1,12 @@
+clone_folder: C:\gopath\src\github.com\ChimeraCoder\gojson
+
+shallow_clone: true
+
+pull_requests:
+    do_not_increment_build_number: true
+
+environment:
+    GOPATH: c:\gopath
+
+build_script:
+    - go test -v
