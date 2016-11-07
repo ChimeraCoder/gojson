@@ -50,8 +50,8 @@ func TestDisambiguateFloatInt(t *testing.T) {
 		Out        string
 	}{
 		{FloatsOnly: false, In: 2.2, Out: "float64"},
-		{FloatsOnly: false, In: 2.0, Out: "int"},
-		{FloatsOnly: false, In: float64(2), Out: "int"},
+		{FloatsOnly: false, In: 2.0, Out: "int64"},
+		{FloatsOnly: false, In: float64(2), Out: "int64"},
 		{FloatsOnly: true, In: 2.2, Out: "float64"},
 		{FloatsOnly: true, In: 2.0, Out: "float64"},
 		{FloatsOnly: true, In: float64(2), Out: "float64"},
