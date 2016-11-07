@@ -41,6 +41,56 @@ func TestInvalidFieldChars(t *testing.T) {
 	}
 }
 
+// TestDisambiguateFloatInt tests that disambiguateFloatInt correctly
+// converts JSON numbers to the desired types.
+func TestDisambiguateFloatInt(t *testing.T) {
+	examples := []struct {
+		FloatsOnly bool
+		In         interface{}
+		Out        string
+	}{
+		{FloatsOnly: false, In: 2.2, Out: "float64"},
+		{FloatsOnly: false, In: 2.0, Out: "int64"},
+		{FloatsOnly: false, In: float64(2), Out: "int64"},
+		{FloatsOnly: true, In: 2.2, Out: "float64"},
+		{FloatsOnly: true, In: 2.0, Out: "float64"},
+		{FloatsOnly: true, In: float64(2), Out: "float64"},
+	}
+
+	for i, ex := range examples {
+		ForceFloats = ex.FloatsOnly
+		if actual := disambiguateFloatInt(ex.In); actual != ex.Out {
+			t.Errorf("[Example %d] got %q, but expected %q", i+1, actual, ex.Out)
+		}
+	}
+	ForceFloats = false
+}
+
+// TestInferFloatInt tests that we can correctly disambiguate between
+// a float and an int when no command-line flag is provided
+func TestInferFloatInt(t *testing.T) {
+	f, err := os.Open(filepath.Join("examples", "floats.json"))
+	if err != nil {
+		t.Fatalf("error opening examples/floats.json: %s", err)
+	}
+	defer f.Close()
+
+	expected, err := ioutil.ReadFile(filepath.Join("examples", "expected_floats.go.out"))
+	if err != nil {
+		t.Fatalf("error reading expected_floats.go.out: %s", err)
+	}
+
+	actual, err := Generate(f, ParseJson, "Stats", "gojson", []string{"json"}, false)
+	if err != nil {
+		t.Error(err)
+	}
+	sactual, sexpected := string(actual), string(expected)
+	if sactual != sexpected {
+		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
+	}
+
+}
+
 // Test example document
 func TestExample(t *testing.T) {
 	i, err := os.Open(filepath.Join("examples", "example.json"))

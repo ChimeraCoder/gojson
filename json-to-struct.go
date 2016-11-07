@@ -112,6 +112,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var ForceFloats bool
+
 // commonInitialisms is a set of common initialisms.
 // Only add entries that are highly unlikely to be non-initialisms.
 // For instance, "ID" is fine (Freudian code is rare), but "AND" is not.
@@ -499,8 +501,8 @@ func typeForValue(value interface{}, structName string, tags []string, subStruct
 func disambiguateFloatInt(value interface{}) string {
 	const epsilon = .0001
 	vfloat := value.(float64)
-	if math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
-		var tmp int = 1
+	if !ForceFloats && math.Abs(vfloat-math.Floor(vfloat+epsilon)) < epsilon {
+		var tmp int64
 		return reflect.TypeOf(tmp).Name()
 	}
 	return reflect.TypeOf(value).Name()
