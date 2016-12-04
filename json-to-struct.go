@@ -1,4 +1,4 @@
-// gojson generates go struct defintions from JSON documents
+// gojson generates go struct definitions from JSON documents
 //
 // Reads from stdin and prints to stdout
 //
