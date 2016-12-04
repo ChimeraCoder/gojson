@@ -45,6 +45,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/format"
 	"io"
 	"io/ioutil"
 	"log"
@@ -111,12 +112,18 @@ func main() {
 		os.Exit(1)
 	} else {
 		if *outputName != "" {
-			err := ioutil.WriteFile(*outputName, output, 0644)
-			if err != nil {
-				log.Fatalf("writing output: %s", err)
+			for i, out := range output {
+				formatted, err := format.Source([]byte(out))
+				if err != nil {
+					log.Fatalf("error formatting: %s", err)
+					os.Exit(1)
+				}
+				if err = ioutil.WriteFile(fmt.Sprintf("%02d_%s", i, *outputName), formatted, 0644); err != nil {
+					log.Fatalf("writing output: %s", err)
+				}
 			}
 		} else {
-			fmt.Print(string(output))
+			fmt.Print(strings.Join(output, "\n\n"))
 		}
 	}
 
