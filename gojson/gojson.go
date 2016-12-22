@@ -45,6 +45,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/format"
 	"io"
 	"io/ioutil"
 	"log"
@@ -59,7 +60,7 @@ var (
 	pkg         = flag.String("pkg", "main", "the name of the package for the generated code")
 	inputName   = flag.String("input", "", "the name of the input file containing JSON (if input not provided via STDIN)")
 	outputName  = flag.String("o", "", "the name of the file to write the output to (outputs to STDOUT by default)")
-	format      = flag.String("fmt", "json", "the format of the input data (json or yaml, defaults to json)")
+	fmtType     = flag.String("fmt", "json", "the format of the input data (json or yaml, defaults to json)")
 	tags        = flag.String("tags", "fmt", "comma seperated list of the tags to put on the struct, default is the same as fmt")
 	forceFloats = flag.Bool("forcefloats", false, "[experimental] force float64 type for integral values")
 	subStruct   = flag.Bool("subStruct", false, "create types for sub-structs (default is false)")
@@ -68,7 +69,7 @@ var (
 func main() {
 	flag.Parse()
 
-	if *format != "json" && *format != "yaml" {
+	if *fmtType != "json" && *fmtType != "yaml" {
 		flag.Usage()
 		fmt.Fprintln(os.Stderr, "fmt must be json or yaml")
 		os.Exit(1)
@@ -76,7 +77,7 @@ func main() {
 
 	tagList := make([]string, 0)
 	if tags == nil || *tags == "" || *tags == "fmt" {
-		tagList = append(tagList, *format)
+		tagList = append(tagList, *fmtType)
 	} else {
 		tagList = strings.Split(*tags, ",")
 	}
@@ -99,7 +100,7 @@ func main() {
 	}
 
 	var parser Parser
-	switch *format {
+	switch *fmtType {
 	case "json":
 		parser = ParseJson
 	case "yaml":
@@ -111,12 +112,18 @@ func main() {
 		os.Exit(1)
 	} else {
 		if *outputName != "" {
-			err := ioutil.WriteFile(*outputName, output, 0644)
-			if err != nil {
-				log.Fatalf("writing output: %s", err)
+			for i, out := range output {
+				formatted, err := format.Source([]byte(out))
+				if err != nil {
+					log.Fatalf("error formatting: %s", err)
+					os.Exit(1)
+				}
+				if err = ioutil.WriteFile(fmt.Sprintf("%02d_%s", i, *outputName), formatted, 0644); err != nil {
+					log.Fatalf("writing output: %s", err)
+				}
 			}
 		} else {
-			fmt.Print(string(output))
+			fmt.Print(strings.Join(output, "\n\n"))
 		}
 	}
 
