@@ -1,9 +1,26 @@
 language: go
 
+os:
+    - linux
+    - osx
+
 go:
     - 1.5
     - 1.6
     - 1.7
     - 1.8
+    - 1.9
     - tip
+
+before_script:
+  - gofmt -w .
+
+  # If `go generate` or `gofmt` yielded any changes,
+  # this will fail with an error message like "too many arguments"
+  # or "M: binary operator expected"
+  - git add .
+  - git diff-index --cached --exit-code HEAD
+
+script:
+    - go test -race -v -timeout 120s ./...
 
