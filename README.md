@@ -114,7 +114,7 @@ API Installation
 ----------------
 
 ```sh
-$ go get github.com/ChimeraCoder/gojson
+$ go get github.com/ChimeraCoder/gojson/gojson
 ```
 
 Development
