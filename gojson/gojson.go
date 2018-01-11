@@ -98,15 +98,17 @@ func main() {
 		input = f
 	}
 
+	var convertFloats bool
 	var parser Parser
 	switch *format {
 	case "json":
 		parser = ParseJson
+		convertFloats = true
 	case "yaml":
 		parser = ParseYaml
 	}
 
-	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct); err != nil {
+	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct, convertFloats); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {
