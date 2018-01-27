@@ -5,12 +5,18 @@ os:
     - osx
 
 go:
-    - 1.5
-    - 1.6
     - 1.7
     - 1.8
     - 1.9
     - tip
+
+
+matrix:
+    include:
+        - os: linux
+          go: 1.5
+        - os: linux
+          go: 1.6
 
 before_script:
   - gofmt -w .
