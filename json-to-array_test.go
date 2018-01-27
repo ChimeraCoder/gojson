@@ -11,13 +11,13 @@ import (
 func TestExampleArray(t *testing.T) {
 	i, err := os.Open(filepath.Join("examples", "example_array.json"))
 	if err != nil {
-		t.Fatal("error opening example.json: %s", err)
+		t.Fatalf("error opening example.json: %s", err)
 	}
 	defer i.Close()
 
 	expectedf, err := os.Open(filepath.Join("examples", "example_array.go.out"))
 	if err != nil {
-		t.Fatal("error opening example_array.go: %s", err)
+		t.Fatalf("error opening example_array.go: %s", err)
 	}
 	defer expectedf.Close()
 

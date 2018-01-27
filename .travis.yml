@@ -5,12 +5,18 @@ os:
     - osx
 
 go:
-    - 1.5
-    - 1.6
     - 1.7
     - 1.8
     - 1.9
     - tip
+
+
+matrix:
+    include:
+        - os: linux
+          go: 1.5
+        - os: linux
+          go: 1.6
 
 before_script:
   - gofmt -w .
@@ -22,5 +28,5 @@ before_script:
   - git diff-index --cached --exit-code HEAD
 
 script:
-    - go test -race -v -timeout 120s ./...
+  - if [ "$TRAVIS_GO_VERSION" == "1.5" ] || [ "$TRAVIS_GO_VERSION" == "1.6" ] || [ "$TRAVIS_GO_VERSION" == "1.7" ] || [ "$TRAVIS_GO_VERSION" == "1.8" ]; then go list ./... | grep -v vendor | xargs go test -race -v -timeout 120s; else go test -race -v -timeout 120s ./...; fi
 
