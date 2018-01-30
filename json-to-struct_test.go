@@ -12,7 +12,7 @@ import (
 // It does not (yet) test for correctness of the end result
 func TestSimpleJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar"}`)
-	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false, true); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -20,7 +20,7 @@ func TestSimpleJson(t *testing.T) {
 // TestNullableJson tests that a null JSON value is handled properly
 func TestNullableJson(t *testing.T) {
 	i := strings.NewReader(`{"foo" : "bar", "baz" : null}`)
-	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false, true); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -28,7 +28,7 @@ func TestNullableJson(t *testing.T) {
 // TestSimpleArray tests that an array without conflicting types is handled correctly
 func TestSimpleArray(t *testing.T) {
 	i := strings.NewReader(`{"foo" : [{"bar": 24}, {"bar" : 42}]}`)
-	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false, true); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -36,7 +36,7 @@ func TestSimpleArray(t *testing.T) {
 // TestInvalidFieldChars tests that a document with invalid field chars is handled correctly
 func TestInvalidFieldChars(t *testing.T) {
 	i := strings.NewReader(`{"f.o-o" : 42}`)
-	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false); err != nil {
+	if _, err := Generate(i, ParseJson, "TestStruct", "gojson", []string{"json"}, false, true); err != nil {
 		t.Error("Generate() error:", err)
 	}
 }
@@ -66,8 +66,8 @@ func TestDisambiguateFloatInt(t *testing.T) {
 	ForceFloats = false
 }
 
-// TestInferFloatInt tests that we can correctly disambiguate between
-// a float and an int when no command-line flag is provided
+// TestInferFloatInt tests that we can correctly infer a float or an int from a
+// JSON number when no command-line flag is provided.
 func TestInferFloatInt(t *testing.T) {
 	f, err := os.Open(filepath.Join("examples", "floats.json"))
 	if err != nil {
@@ -80,7 +80,7 @@ func TestInferFloatInt(t *testing.T) {
 		t.Fatalf("error reading expected_floats.go.out: %s", err)
 	}
 
-	actual, err := Generate(f, ParseJson, "Stats", "gojson", []string{"json"}, false)
+	actual, err := Generate(f, ParseJson, "Stats", "gojson", []string{"json"}, false, true)
 	if err != nil {
 		t.Error(err)
 	}
@@ -89,6 +89,29 @@ func TestInferFloatInt(t *testing.T) {
 		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
 	}
 
+}
+
+// TestYamlNumbers tests that we handle Yaml's number system that has both floats and ints correctly
+func TestYamlNumbers(t *testing.T) {
+	f, err := os.Open(filepath.Join("examples", "numbers.yaml"))
+	if err != nil {
+		t.Fatalf("error opening examples/numbers.yaml: %s", err)
+	}
+	defer f.Close()
+
+	expected, err := ioutil.ReadFile(filepath.Join("examples", "expected_numbers.go.out"))
+	if err != nil {
+		t.Fatalf("error reading expected_numbers.go.out: %s", err)
+	}
+
+	actual, err := Generate(f, ParseYaml, "Stats", "gojson", []string{"yaml"}, false, false)
+	if err != nil {
+		t.Error(err)
+	}
+	sactual, sexpected := string(actual), string(expected)
+	if sactual != sexpected {
+		t.Errorf("'%s' (expected) != '%s' (actual)", sexpected, sactual)
+	}
 }
 
 // Test example document
@@ -103,7 +126,7 @@ func TestExample(t *testing.T) {
 		t.Error("error reading expected_output_test.go", err)
 	}
 
-	actual, err := Generate(i, ParseJson, "User", "gojson", []string{"json"}, false)
+	actual, err := Generate(i, ParseJson, "User", "gojson", []string{"json"}, false, true)
 	if err != nil {
 		t.Error(err)
 	}
