@@ -26,7 +26,7 @@ func TestExampleArray(t *testing.T) {
 		t.Fatalf("error reading example_array.go: %s", err)
 	}
 
-	actual, err := Generate(i, ParseJson, "Users", "gojson", []string{"json"}, false, true)
+	actual, err := Generate(i, ParseJson, "Users", "gojson", []string{"json"}, false, true, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
