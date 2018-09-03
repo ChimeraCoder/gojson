@@ -63,6 +63,8 @@ var (
 	tags        = flag.String("tags", "fmt", "comma seperated list of the tags to put on the struct, default is the same as fmt")
 	forceFloats = flag.Bool("forcefloats", false, "[experimental] force float64 type for integral values")
 	subStruct   = flag.Bool("subStruct", false, "create types for sub-structs (default is false)")
+	nosort      = flag.Bool("nosort", false, "dont sort fields of generated structs (default is false)")
+	omitempty   = flag.Bool("omitempty", false, "add omitempty flag in field tag (default is false)")
 )
 
 func main() {
@@ -108,7 +110,7 @@ func main() {
 		parser = ParseYaml
 	}
 
-	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct, convertFloats); err != nil {
+	if output, err := Generate(input, parser, *name, *pkg, tagList, *subStruct, convertFloats, *nosort, *omitempty); err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing", err)
 		os.Exit(1)
 	} else {
