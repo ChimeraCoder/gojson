@@ -30,8 +30,8 @@ type Repository struct {
 	DownloadsURL     string      `json:"downloads_url"`
 	EventsURL        string      `json:"events_url"`
 	Fork             bool        `json:"fork"`
-	Forks            float64     `json:"forks"`
-	ForksCount       float64     `json:"forks_count"`
+	Forks            int64       `json:"forks"`
+	ForksCount       int64       `json:"forks_count"`
 	ForksURL         string      `json:"forks_url"`
 	FullName         string      `json:"full_name"`
 	GitCommitsURL    string      `json:"git_commits_url"`
@@ -44,7 +44,7 @@ type Repository struct {
 	Homepage         interface{} `json:"homepage"`
 	HooksURL         string      `json:"hooks_url"`
 	HtmlURL          string      `json:"html_url"`
-	ID               float64     `json:"id"`
+	ID               int64       `json:"id"`
 	IssueCommentURL  string      `json:"issue_comment_url"`
 	IssueEventsURL   string      `json:"issue_events_url"`
 	IssuesURL        string      `json:"issues_url"`
@@ -57,10 +57,10 @@ type Repository struct {
 	MilestonesURL    string      `json:"milestones_url"`
 	MirrorURL        interface{} `json:"mirror_url"`
 	Name             string      `json:"name"`
-	NetworkCount     float64     `json:"network_count"`
+	NetworkCount     int64       `json:"network_count"`
 	NotificationsURL string      `json:"notifications_url"`
-	OpenIssues       float64     `json:"open_issues"`
-	OpenIssuesCount  float64     `json:"open_issues_count"`
+	OpenIssues       int64       `json:"open_issues"`
+	OpenIssuesCount  int64       `json:"open_issues_count"`
 	Owner            struct {
 		AvatarURL         string  `json:"avatar_url"`
 		EventsURL         string  `json:"events_url"`
@@ -69,7 +69,7 @@ type Repository struct {
 		GistsURL          string  `json:"gists_url"`
 		GravatarID        string  `json:"gravatar_id"`
 		HtmlURL           string  `json:"html_url"`
-		ID                float64 `json:"id"`
+		ID                int64   `json:"id"`
 		Login             string  `json:"login"`
 		OrganizationsURL  string  `json:"organizations_url"`
 		ReceivedEventsURL string  `json:"received_events_url"`
@@ -83,7 +83,7 @@ type Repository struct {
 	Private         bool    `json:"private"`
 	PullsURL        string  `json:"pulls_url"`
 	PushedAt        string  `json:"pushed_at"`
-	Size            float64 `json:"size"`
+	Size            int64   `json:"size"`
 	SshURL          string  `json:"ssh_url"`
 	StargazersURL   string  `json:"stargazers_url"`
 	StatusesURL     string  `json:"statuses_url"`
@@ -95,8 +95,8 @@ type Repository struct {
 	TreesURL        string  `json:"trees_url"`
 	UpdatedAt       string  `json:"updated_at"`
 	URL             string  `json:"url"`
-	Watchers        float64 `json:"watchers"`
-	WatchersCount   float64 `json:"watchers_count"`
+	Watchers        int64   `json:"watchers"`
+	WatchersCount   int64   `json:"watchers_count"`
 }
 ```
 
