@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// Test example document
+// TestExampleArray tests example document
 func TestExampleArray(t *testing.T) {
 	i, err := os.Open(filepath.Join("examples", "example_array.json"))
 	if err != nil {

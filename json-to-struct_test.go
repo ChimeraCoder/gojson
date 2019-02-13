@@ -114,7 +114,7 @@ func TestYamlNumbers(t *testing.T) {
 	}
 }
 
-// Test example document
+// TestExample tests example document
 func TestExample(t *testing.T) {
 	i, err := os.Open(filepath.Join("examples", "example.json"))
 	if err != nil {
