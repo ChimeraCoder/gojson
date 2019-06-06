@@ -217,9 +217,21 @@ func Generate(input io.Reader, parser Parser, structName, pkgName string, tags [
 	case map[string]interface{}:
 		result = iresult
 	case []interface{}:
-		 result = map[string]interface{}{
-	        	"temp" : iresult,
-        	}
+		if len(iresult) == 1 {
+			src := fmt.Sprintf("package %s\n\ntype %s %s\n",
+				pkgName,
+				structName,
+			typeForValue(iresult, structName, tags, subStructMap, convertFloats))
+			formatted, err := format.Source([]byte(src))
+			if err != nil {
+				err = fmt.Errorf("error formatting: %s, was formatting\n%s", err, src)
+			}
+			return formatted, err
+		} else {
+			result = map[string]interface{}{
+				"temp" : iresult,
+			}
+		}
 	default:
 		return nil, fmt.Errorf("unexpected type: %T", iresult)
 	}
