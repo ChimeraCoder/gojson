@@ -211,14 +211,18 @@ func Generate(input io.Reader, parser Parser, structName, pkgName string, tags [
 		return nil, err
 	}
 
+	pkgDeclaration := ""
+	if pkgName != "" {
+		pkgDeclaration = fmt.Sprintf("package %s\n", pkgName)
+	}
 	switch iresult := iresult.(type) {
 	case map[interface{}]interface{}:
 		result = convertKeysToStrings(iresult)
 	case map[string]interface{}:
 		result = iresult
 	case []interface{}:
-		src := fmt.Sprintf("package %s\n\ntype %s %s\n",
-			pkgName,
+		src := fmt.Sprintf("%s\ntype %s %s\n",
+			pkgDeclaration,
 			structName,
 			typeForValue(iresult, structName, tags, subStructMap, convertFloats))
 		formatted, err := format.Source([]byte(src))
@@ -230,8 +234,8 @@ func Generate(input io.Reader, parser Parser, structName, pkgName string, tags [
 		return nil, fmt.Errorf("unexpected type: %T", iresult)
 	}
 
-	src := fmt.Sprintf("package %s\ntype %s %s}",
-		pkgName,
+	src := fmt.Sprintf("%s\ntype %s %s}",
+		pkgDeclaration,
 		structName,
 		generateTypes(result, structName, tags, 0, subStructMap, convertFloats))
 
