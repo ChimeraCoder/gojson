@@ -1,6 +1,7 @@
 package gojson
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -157,5 +158,40 @@ func TestFmtFieldName(t *testing.T) {
 		if lintField != testCase.out {
 			t.Errorf("error fmtFiledName %s != %s (%s)", testCase.in, testCase.out, lintField)
 		}
+	}
+}
+
+func TestTime(t *testing.T) {
+	type testCase struct {
+		input    string
+		expected string
+	}
+
+	expectedTime := "package foopkg\n\ntype FooTime struct {\n\tCreatedTime time.Time `json:\"createdTime\"`\n}\n"
+	expectedString := "package foopkg\n\ntype FooTime struct {\n\tCreatedTime string `json:\"createdTime\"`\n}\n"
+
+	testCases := []testCase{
+		{"2021-07-28T12:34:56Z", expectedTime},
+		{"2021-07-28T12:34:56", expectedString},
+		{"2021-07-28T12:34:56.789Z", expectedTime},
+		{"2021-07-28T12:34:56.789", expectedString},
+		{"2021-07-28T12:34:56+06:00", expectedTime},
+		{"2021-07-28T12:34:56-06:00", expectedTime},
+		{"2021-07-28T12:34:56-0600", expectedString},
+		{"2021-07-28T12:34:56.789-06:00", expectedTime},
+	}
+	for _, test := range testCases {
+		t.Run(fmt.Sprintf("when time is %s", test.input), func(t *testing.T) {
+			jsonIn := fmt.Sprintf(`{"createdTime": "%s"}`, test.input)
+			bytes, err := Generate(strings.NewReader(jsonIn), ParseJson, "FooTime", "foopkg", []string{"json"}, false, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			actual := string(bytes)
+			if test.expected != actual {
+				t.Fatalf("'%s' (expected) != '%s' (actual)", test.expected, actual)
+			}
+		})
 	}
 }
