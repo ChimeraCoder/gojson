@@ -24,7 +24,7 @@ type Repository struct {
 	CompareURL       string      `json:"compare_url"`
 	ContentsURL      string      `json:"contents_url"`
 	ContributorsURL  string      `json:"contributors_url"`
-	CreatedAt        string      `json:"created_at"`
+	CreatedAt        time.Time   `json:"created_at"`
 	DefaultBranch    string      `json:"default_branch"`
 	Description      string      `json:"description"`
 	DownloadsURL     string      `json:"downloads_url"`
@@ -80,23 +80,23 @@ type Repository struct {
 		Type              string  `json:"type"`
 		URL               string  `json:"url"`
 	} `json:"owner"`
-	Private         bool    `json:"private"`
-	PullsURL        string  `json:"pulls_url"`
-	PushedAt        string  `json:"pushed_at"`
-	Size            float64 `json:"size"`
-	SshURL          string  `json:"ssh_url"`
-	StargazersURL   string  `json:"stargazers_url"`
-	StatusesURL     string  `json:"statuses_url"`
-	SubscribersURL  string  `json:"subscribers_url"`
-	SubscriptionURL string  `json:"subscription_url"`
-	SvnURL          string  `json:"svn_url"`
-	TagsURL         string  `json:"tags_url"`
-	TeamsURL        string  `json:"teams_url"`
-	TreesURL        string  `json:"trees_url"`
-	UpdatedAt       string  `json:"updated_at"`
-	URL             string  `json:"url"`
-	Watchers        float64 `json:"watchers"`
-	WatchersCount   float64 `json:"watchers_count"`
+	Private         bool       `json:"private"`
+	PullsURL        string     `json:"pulls_url"`
+	PushedAt        string     `json:"pushed_at"`
+	Size            float64    `json:"size"`
+	SshURL          string     `json:"ssh_url"`
+	StargazersURL   string     `json:"stargazers_url"`
+	StatusesURL     string     `json:"statuses_url"`
+	SubscribersURL  string     `json:"subscribers_url"`
+	SubscriptionURL string     `json:"subscription_url"`
+	SvnURL          string     `json:"svn_url"`
+	TagsURL         string     `json:"tags_url"`
+	TeamsURL        string     `json:"teams_url"`
+	TreesURL        string     `json:"trees_url"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	URL             string     `json:"url"`
+	Watchers        float64    `json:"watchers"`
+	WatchersCount   float64    `json:"watchers_count"`
 }
 ```
 

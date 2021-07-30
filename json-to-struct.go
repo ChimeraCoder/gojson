@@ -20,7 +20,7 @@
 //     	CompareURL       string      `json:"compare_url"`
 //     	ContentsURL      string      `json:"contents_url"`
 //     	ContributorsURL  string      `json:"contributors_url"`
-//     	CreatedAt        string      `json:"created_at"`
+//     	CreatedAt        time.Time   `json:"created_at"`
 //     	DefaultBranch    string      `json:"default_branch"`
 //     	Description      string      `json:"description"`
 //     	DownloadsURL     string      `json:"downloads_url"`
@@ -76,23 +76,23 @@
 //         	Type              string  `json:"type"`
 //         	URL               string  `json:"url"`
 //     } `	json:"owner"`
-//     	Private         bool    `json:"private"`
-//     	PullsURL        string  `json:"pulls_url"`
-//     	PushedAt        string  `json:"pushed_at"`
-//     	Size            float64 `json:"size"`
-//     	SshURL          string  `json:"ssh_url"`
-//     	StargazersURL   string  `json:"stargazers_url"`
-//     	StatusesURL     string  `json:"statuses_url"`
-//     	SubscribersURL  string  `json:"subscribers_url"`
-//     	SubscriptionURL string  `json:"subscription_url"`
-//     	SvnURL          string  `json:"svn_url"`
-//     	TagsURL         string  `json:"tags_url"`
-//     	TeamsURL        string  `json:"teams_url"`
-//     	TreesURL        string  `json:"trees_url"`
-//     	UpdatedAt       string  `json:"updated_at"`
-//     	URL             string  `json:"url"`
-//     	Watchers        float64 `json:"watchers"`
-//     	WatchersCount   float64 `json:"watchers_count"`
+//     	Private         bool       `json:"private"`
+//     	PullsURL        string     `json:"pulls_url"`
+//     	PushedAt        string     `json:"pushed_at"`
+//     	Size            float64    `json:"size"`
+//     	SshURL          string     `json:"ssh_url"`
+//     	StargazersURL   string     `json:"stargazers_url"`
+//     	StatusesURL     string     `json:"statuses_url"`
+//     	SubscribersURL  string     `json:"subscribers_url"`
+//     	SubscriptionURL string     `json:"subscription_url"`
+//     	SvnURL          string     `json:"svn_url"`
+//     	TagsURL         string     `json:"tags_url"`
+//     	TeamsURL        string     `json:"teams_url"`
+//     	TreesURL        string     `json:"trees_url"`
+//     	UpdatedAt       time.Time  `json:"updated_at"`
+//     	URL             string     `json:"url"`
+//     	Watchers        float64    `json:"watchers"`
+//     	WatchersCount   float64    `json:"watchers_count"`
 // 	}
 package gojson
 
@@ -104,6 +104,7 @@ import (
 	"io"
 	"math"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -491,6 +492,11 @@ func typeForValue(value interface{}, structName string, tags []string, subStruct
 	v := reflect.TypeOf(value).Name()
 	if v == "float64" && convertFloats {
 		v = disambiguateFloatInt(value)
+	} else if v == "string" {
+		matched, err := regexp.MatchString(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?((\+|\-)\d{2}:\d{2}|Z)`, value.(string))
+		if err == nil && matched {
+			v = "time.Time"
+		}
 	}
 	return v
 }
